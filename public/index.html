@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAU Lost & Found</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Lost Item List</h1>
+
+        <!-- Input form to send items to server/database-->
+        <form id="itemForm">
+            <input type="text" id="itemInput" placeholder="Enter item name..." required>
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- Fetch items from server > list here-->
+        <ul id="itemList"></ul>
+    </main>
+    <!-- script JS -->
+    <script src="script.js"></script>
+</body>
+</html>
