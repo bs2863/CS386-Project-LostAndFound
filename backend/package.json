@@ -1,0 +1,43 @@
+{
+  "name": "lost-and-found-api",
+  "version": "1.0.0",
+  "description": "A semester-long group project to create a full-stack lost-and-found item tracking system for the NAU Flagstaff Mountain Campus.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bs2863/CS386-Project-LostAndFound.git"
+  },
+  "contributors": [
+    {
+      "name": "Lareine Han",
+      "email": "sh3265@nau.edu"
+    },
+    {
+      "name": "Evelyn Torres",
+      "email": "eit27@nau.edu"
+    },
+    {
+      "name": "Rose Hankins",
+      "email": "jh3994@nau.edu"
+    },
+    {
+      "name": "Amaya Gillison",
+      "email": "ajg795@nau.edu"
+    },
+    {
+      "name": "Jake Domabyl",
+      "email": "jpd254@nau.edu"
+    },
+    {
+      "name": "Brennan Smith",
+      "email": "bs2863@nau.edu"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/bs2863/CS386-Project-LostAndFound/issues"
+  },
+  "homepage": "https://github.com/bs2863/CS386-Project-LostAndFound#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
