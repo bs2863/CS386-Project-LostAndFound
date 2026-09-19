@@ -167,6 +167,34 @@ Must have
 
 ### Interview 7
 
+**Who was interviewed:** Emrys (NAU student; resides off-campus)
+
+**Who participated in the interview:** Rose Hankins
+
+**Interview date:** September 18, 2026
+
+**Customer segment represented in the interview:** NAU Student, Flagstaff resident (non-campus housing)
+
+**Key insights:**
+- Lost items are very common on campus.
+- The lack of an easy way to share information regarding those items is an issue.
+- Being able to easily take a picture of a lost object and upload it, rather than
+needing to bother someone at a desk, would increase the rate at which people report
+those items
+- 
+
+**Representative quotes:**
+> "I find at least one or two lost items [...] like... every other day."
+
+> "Even if I see a lost item, I usually won't touch it to take it to lost-and found.
+> [...] I don't want to bother them."
+
+> "I lost my water bottle. [...] My instructor said if she saw it she would have taken
+> it to her office, but then it would have been even harder to find since I didn't know
+> where her office was yet."
+
+**Assessment:** Nice to have
+
 ### Interview 8
 
 **Who was interviewed:** University faculty member
