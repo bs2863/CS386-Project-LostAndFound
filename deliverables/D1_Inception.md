@@ -2,6 +2,17 @@
 
 ## 1. Introduction
 
+The NAU Lost and Found System addresses the difficulty students face when trying
+to recover belongings they have lost on campus. When an item is lost students may
+not know where to begin looking or may have to visit multiple locations to determine 
+whether their belongings have been turned in. This process can be time consuming for 
+both students and the staff who manage the lost and found items. The problem is 
+especially important because students may need to quickly recover important personal or 
+academic belongings. Our proposed solution is a web application that helps connect 
+students with lost belongings while reducing the time and effort required to search for 
+them. The system will provide a more efficient and organized approach to the campus 
+lost and found process while limiting unnecessary access to information about all lost items.
+
 ## 2. Initial Value Proposition and Customer Segments
 
 ### Value Proposition
@@ -164,6 +175,39 @@ Senior student who lives on campus and has lost an item before
 Must have
 
 ### Interview 6
+
+**Who was interviewed?**
+Aria, Junior at NAU
+
+**Who participated in the interview?**
+Amaya Gillison
+
+**Date of the Interview**
+September 17, 2026
+
+**Customer Segment Represented**
+Junior student who lives on campus and has lost an item before
+also works for the front desk at an on campus job and dealt with 
+others losing lost items
+
+**Key Insights**
+Student has lost items before and the system currently in place has 
+not been an issue. They like the idea of not having to go to multiple
+places to find their items. They thought the idea of an automated database
+would make the process easier. They were not super conncerend with students 
+taking things that do not actually belong to them. As someone who currently 
+works with the lost and found system they thought that learning and working
+with something like this would not be too much work. 
+
+**Representative Quotes**
+>"I do not lose things, I am very indifferent neutral to the current system."
+>"No way it [stealing] stops completely always anticipate that people just might 
+lie about what is their proprty, appreciate the try to stop but it will always
+ be inevitable."
+>"I do not get enough lost items to feel overwhelmed by a new system like this"
+
+**Final Assessment**
+Nice to Have
 
 ### Interview 7
 
