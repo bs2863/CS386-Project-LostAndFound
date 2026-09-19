@@ -110,8 +110,58 @@ It probably would have taken days, if ever, for it to show up on a thing like th
 Must Have
 
 ### Interview 4
+**Who was interviewed?**
+Cassandra Freshman at NAU
+
+**Who participated in the interview?
+Evelyn Torres
+
+**Date of Interview**
+September 15, 2026
+
+**Customer Segment Represented**
+Freshman student that lives on campus that has not lost anything
+
+**Key Insights**
+-Never lost an item
+-Seems unaware of physical lost and found locations
+-Thinks an app would be useful to find valuable items
+-Shows concern that people would use the app to steal
+
+**Representative Quotes**
+>"I would use it but I wouldn't be very hopeful because there is people that steal as well."
+>"... stuff that I would try to find, that I can't replace easily, is like technology like my laptop [and] my phone."
+
+
+**Final Assessment**
+Nice to have
 
 ### Interview 5
+
+**Who was interviewed?**
+Lesly, Senior at NAU
+
+**Who participated in the interview?**
+Evelyn Torres
+
+**Date of the Interview**
+September 17, 2026
+
+**Customer Segment Represented**
+Senior student who lives on campus and has lost an item before
+
+**Key Insights**
+-Aware of losts and founds on campus
+-Lost earbuds and used the tracking feature on the device
+-Says that if there was no tracking, she would spend lots of time looking for an item
+-Would use the app
+
+**Representative Quotes**
+>"My airpods are important to me so I would try to find them."
+>"If I didn't have an airtag on my car keys, I would be so cooked."
+
+**Final Assessment**
+Must have
 
 ### Interview 6
 
