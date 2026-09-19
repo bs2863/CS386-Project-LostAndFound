@@ -77,6 +77,10 @@ Nice to have
 
 ### Interview 5
 
+### Interview 6
+
+### Interview 7
+
 **Who was interviewed:** Emrys (NAU student; resides off-campus)
 
 **Who participated in the interview:** Rose Hankins
@@ -104,10 +108,6 @@ those items
 > where her office was yet."
 
 **Assessment:** Nice to have
-
-### Interview 6
-
-### Interview 7
 
 ### Interview 8
 
