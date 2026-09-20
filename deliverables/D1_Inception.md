@@ -183,6 +183,7 @@ Senior student who lives on campus and has lost an item before
 **Representative Quotes**
 
 >"My airpods are important to me so I would try to find them."
+
 >"If I didn't have an airtag on my car keys, I would be so cooked."
 
 **Final Assessment**
@@ -217,9 +218,11 @@ with something like this would not be too much work.
 **Representative Quotes**
 
 >"I do not lose things, I am very indifferent neutral to the current system."
+
 >"No way it \[stealing] stops completely always anticipate that people just might 
 lie about what is their proprty, appreciate the try to stop but it will always
  be inevitable."
+ 
 >"I do not get enough lost items to feel overwhelmed by a new system like this"
 
 **Final Assessment**
