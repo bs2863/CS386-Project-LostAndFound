@@ -352,9 +352,9 @@ The original customer segment was a little too broad. Our three must-have interv
 
 ## 5. Member Participation
 
-Brennan Smith (bs2863) - 17%: Conducted 1 interview, wrote initial Cus. Seg., wrote final VP and Cus. Seg.
-Lareine Han (awesomeyeti) - 17%: Conducted 2 interviews
-Jake Domabyl (jpd254) - 17.5%: Conducted 2 interviews, wrote initial VP
-Amaya Gillison (amayajg) - 17%: Conducted 1 interview and wrote introduction
-Evelyn Torres (evetor419) - 17%: Conducted 2 interviews
-Rose Hankins (az-raven) - 14.5%: Conducted 1 interview, reviewed document for submission
+* Brennan Smith (bs2863) - 17%: Conducted 1 interview, wrote initial Cus. Seg., wrote final VP and Cus. Seg.
+* Lareine Han (awesomeyeti) - 17%: Conducted 2 interviews
+* Jake Domabyl (jpd254) - 17.5%: Conducted 2 interviews, wrote initial VP
+* Amaya Gillison (amayajg) - 17%: Conducted 1 interview and wrote introduction
+* Evelyn Torres (evetor419) - 17%: Conducted 2 interviews
+* Rose Hankins (az-raven) - 14.5%: Conducted 1 interview, reviewed document for submission
