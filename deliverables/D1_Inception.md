@@ -211,13 +211,17 @@ Nice to Have
 
 ### Interview 7
 
-**Who was interviewed:** Emrys (NAU student; resides off-campus)
+**Who was interviewed:**
+Emrys (NAU student; resides off-campus)
 
-**Who participated in the interview:** Rose Hankins
+**Who participated in the interview:**
+Rose Hankins
 
-**Interview date:** September 18, 2026
+**Interview date:**
+September 18, 2026
 
-**Customer segment represented in the interview:** NAU Student, Flagstaff resident (non-campus housing)
+**Customer segment represented in the interview:**
+NAU Student, Flagstaff resident (non-campus housing)
 
 **Key insights:**
 - Lost items are very common on campus.
@@ -237,17 +241,22 @@ those items
 > it to her office, but then it would have been even harder to find since I didn't know
 > where her office was yet."
 
-**Assessment:** Nice to have
+**Assessment:** 
+Nice to have
 
 ### Interview 8
 
-**Who was interviewed:** University faculty member
+**Who was interviewed:**
+University faculty member
 
-**Who participated in the interview:** Lareine Han
+**Who participated in the interview:**
+Lareine Han
 
-**Interview date:** September 17, 2026
+**Interview date:**
+September 17, 2026
 
-**Customer segment represented in the interview:** University faculty/staff
+**Customer segment represented in the interview:**
+University faculty/staff
 
 **Key insights:**
 - Lost a tumbler on campus.
@@ -261,18 +270,23 @@ those items
 
 > "If there is an easy system to look up, that would be nice."
 
-**Assessment:** Nice to have
+**Assessment:**
+Nice to have
 
 
 ### Interview 9
 
-**Who was interviewed:** University faculty member
+**Who was interviewed:**
+University faculty member
 
-**Who participated in the interview:** Lareine Han
+**Who participated in the interview:** 
+Lareine Han
 
-**Interview date:** September 17, 2026
+**Interview date:** 
+September 17, 2026
 
-**Customer segment represented in the interview:** University faculty/staff
+**Customer segment represented in the interview:** 
+University faculty/staff
 
 **Key insights:**
 - Lost a phone charger on campus.
@@ -285,15 +299,27 @@ those items
 
 > "I don’t know where they are."
 
-**Assessment:** Nice to have
+**Assessment:** 
+Nice to have
 
 
 ## 4. Final Value Proposition and Customer Segments
 
 ### Final Value Proposition
+NAU Lost & Found aims to streamline the process of recovering lost items, reducing the frustration of checking multiple campus locations, offices, or phone numbers down to a fast online search which consolidates found item reports to a single location.
 
 ### Final Customer Segment
+NAU students and staff, both on and off-campus, who have lost personal belongings (particularly those without built-in tracking) on campus, and find the current lost-and-found process unreliable or frustrating.
 
 ### Refinement Explanation
+The original value proposition was more 'slogany', and did not specify a measureable benefit. The new proposition addresses the 'product' more directly, and narrows in on some notes from our interviews like how interview 3 mentioned that having 3 or 4 different phonenumbers/emails associated with different buildings. Interview 2 expressed interest in using a single site rather than 'walking all over campus'. Having a single, comprehensive point to check is a tangible benefit of the system that multiple interviewees seemed interested in.
+
+The original customer segment was a little too broad. Our three must-have interviews (1, 3, and 5) all had lost items more than once, and all had lost at least one item that didn't have a convenient way to track itself (like earbuds, airtags, etc). Those who have such a thing are likely to only find the service 'convenient' but not 'necessary'. However, even those who do have trackable items may lose items without such a feature, and thus would find the NAU Lost & Found webapp much more important.
 
 ## 5. Member Participation
+Brennan Smith (bs2863) - 17%: Conducted 1 interview, wrote initial Cus. Seg., wrote final VP and Cus. Seg. 
+Lareine Han (awesomeyeti) - 17%: Conducted 2 interviews
+Jake Domabyl (jpd254) - 17.5%: Conducted 2 interviews, wrote initial VP
+Amaya Gillison (amayajg) - 17%: Conducted 1 interview and wrote introduction
+Evelyn Torres (evetor419) - 17%: Conducted 2 interviews
+Rose Hankins (az-raven) - 14.5%: Conducted 1 interview, reviewed document for submission
