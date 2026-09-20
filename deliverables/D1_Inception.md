@@ -1,6 +1,6 @@
 # D.1 Inception
 
-## 1 Introduction
+## 1. Introduction
 
 The NAU Lost and Found System addresses the difficulty students face when trying
 to recover belongings they have lost on campus. When an item is lost students may
@@ -14,7 +14,7 @@ them. The system will provide a more efficient and organized approach to the cam
 lost and found process while limiting unnecessary access to information about all lost items.
 
 
-## 2 Initial VP and Cus. Seg.
+## 2. Initial VP and Cus. Seg.
 
 ### Value Proposition
 
@@ -30,7 +30,7 @@ laptops, water bottles, backpacks, etc) across campus facilities should
 have a reliable place to try and find them.
 
 
-## 3 Interviews Summary
+## 3. Interviews Summary
 
 ### Interview 1
 
@@ -327,7 +327,7 @@ University faculty/staff
 Nice to have
 
 
-## 4 Final Value Proposition and Customer Segments
+## 4. Final Value Proposition and Customer Segments
 
 ### Final Value Proposition
 
@@ -344,7 +344,7 @@ The original value proposition was more 'slogany', and did not specify a measura
 The original customer segment was a little too broad. Our three must-have interviews (1, 3, and 5) all had lost items more than once, and all had lost at least one item that didn't have a convenient way to track itself (like earbuds, airtags, etc). Those who have such a thing are likely to only find the service 'convenient' but not 'necessary'. However, even those who do have trackable items may lose items without such a feature, and thus would find the NAU Lost \& Found webapp much more important.
 
 
-## 5 Member Participation
+## 5. Member Participation
 
 Brennan Smith (bs2863) - 17%: Conducted 1 interview, wrote initial Cus. Seg., wrote final VP and Cus. Seg.
 Lareine Han (awesomeyeti) - 17%: Conducted 2 interviews
