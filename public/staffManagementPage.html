@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Manage Lost & Found Items</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+    <div id="navbar"></div>
+    <main class="staff-container">
+
+        <section class="staff-dashboard">
+            <h1>Manage Lost & Found Items</h1>
+            <p>View or Manage lost & found items.</p>
+        </section>
+
+        <section class="staff-filter">
+            <input type="text" placeholder="Search items...">
+
+            <select>
+                <option value="">All Items</option>
+                <option value="lost">Lost</option>
+                <option value="found">Found</option>
+
+            </select>
+        </section>
+
+        <section class="staff-items">
+            <h2>List of Items</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Blue Hoodie</td>
+                    <td>Clothing</td>
+                    <td>Cline Library</td>
+                    <td>Lost</td>
+                    <td>
+                        <button>View</button>
+                        <button>Edit</button>
+                        <button>Remove</button>
+                    </td>
+                  </tr>  
+
+                  <tr>
+                    <td>Bose Headset</td>
+                    <td>Electronics</td>
+                    <td>Dining Hall</td>
+                    <td>Found</td>
+                    <td>
+                        <button>View</button>
+                        <button>Edit</button>
+                        <button>Remove</button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Black Wallet</td>
+                    <td>Personal</td>
+                    <td>Adel Mathematics</td>
+                    <td>Lost</td>
+                    <td>
+                        <button>View</button>
+                        <button>Edit</button>
+                        <button>Remove</button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Green Hydro Flask</td>
+                    <td>Personal</td>
+                    <td>Health and Learning Center</td>
+                    <td>Found</td>
+                    <td>
+                        <button>View</button>
+                        <button>Edit</button>
+                        <button>Remove</button>
+                    </td>
+                  </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+    </main>
+
+    <script src="/navbar.js"></script>
+
+</body>
+
+</html>
