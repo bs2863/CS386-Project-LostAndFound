@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Campus Lost & Found</title>
+
+	<link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <!----Page Title -->
+
+	<main>
+
+		<div class="page-title">
+
+			<h1>Report Lost Item</h1>
+			<p>Complete the fields below to report the lost item.</p>
+		</div>
+
+    <!----The Form -->>
+
+		<div class="lost-item-container">
+
+			<form id = "lostItemForm" class="lost-item-form">
+
+				<!-- Short description -->
+
+				<label>
+					Short description
+
+					<input
+						type="text"
+						name="shortDescription"
+						placeholder="Enter a brief description"
+					>
+				</label>
+
+				<!-- Category -->
+
+				<label>
+					Category
+
+					<select name="category">
+
+						<option value="" disabled selected>
+							Select category
+						</option>
+
+					</select>
+
+				</label>
+
+				<!-- Date and time -->
+
+				<label>
+					Approx. lost date/time
+
+					<div class="lost-item-row">
+
+						<input
+							type="text"
+							name="lostDate"
+							placeholder="MM/DD/YYYY"
+						>
+
+						<input
+							type="text"
+							name="lostTime"
+							placeholder="HH:MM"
+						>
+
+					</div>
+
+				</label>
+
+				<!-- Location -->
+
+				<label>
+					Last known location
+
+					<input
+						type="text"
+						name="location"
+						placeholder="Building, room, or area"
+					>
+
+				</label>
+
+				<!-- Description -->
+
+				<label>
+
+					Description
+
+					<input
+						type="text"
+						name="description"
+						placeholder="Color, shape, or any other details"
+					>
+
+				</label>
+
+				<!-- Contact information -->
+
+				<label>
+
+					Contact/reference info
+
+					<div class="lost-item-row">
+
+						<input
+							type="tel"
+							name="phone"
+							placeholder="(###)###-####"
+						>
+
+						<input
+							type="email"
+							name="email"
+							placeholder="louie@nau.edu"
+						>
+
+					</div>
+
+				</label>
+
+				<!-- Submit Button -->
+
+				<button type="submit">
+					Submit
+				</button>
+
+				<p id= "duplicateItemMessage" class="lost-item-message" role="status"> </p>
+
+			</form>
+
+		</div>
+
+	</main>
+    <script src="../js/reportPage.js"></script>
+</body>
+
+</html>
