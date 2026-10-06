@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Login | NAU Lost & Found</title>
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!-- Decided not to include navbar, as it doesnt fit on the login page -->
+
+		<main class="login-container">
+			<h1>Log in</h1>
+			<p class="login-subtitle">
+				Sign in to report, claim, or manage your lost items.
+			</p>
+
+			<form id="loginForm" class="login-form">
+				<label for="userID">
+					User ID
+					<input
+						id="userID"
+						name="userID"
+						required />
+				</label>
+
+				<label for="password">
+					Password
+					<input
+						type="password"
+						id="password"
+						name="password"
+						required />
+				</label>
+
+				<button type="submit">Log in</button>
+
+				<!-- Error messages show here -->
+				<p id="loginMessage" class="login-message" role="status"></p>
+			</form>
+
+			<!-- Functionality not needed for MVP -->
+			<p class="login-footer"><a href="#">Forgot your password?</a></p>
+		</main>
+
+		<!-- Login JS -->
+		<script src="/loginPage.js"></script>
+	</body>
+</html>
