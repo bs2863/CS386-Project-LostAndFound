@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!--setup for the page-->
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<!--name on the browser tab-->
+		<title>Report Found Item</title>
+	</head>
+
+	<body>
+		<!--Page for students to report an item they found-->
+		<main>
+			<h1>Report Found Item</h1>
+
+			<!--explanation of form-->
+			<p>
+				Use this form to report an item you found on campus.
+			</p>
+
+			<!--the form for info about found item-->
+			<form id="foundItemForm">
+
+                <!--item type-->
+				<label for="itemType">Item Type:</label>
+				<br />
+
+				<!--text box-->
+				<textarea
+					id="itemType"
+					name="itemType"
+					placeholder="Item you found was..."
+					required
+				></textarea>
+
+				<br /><br />
+
+				<!--area for description of item -->
+				<label for="description">Item Description:</label>
+				<br />
+
+				<!--text box-->
+				<textarea
+					id="description"
+					name="description"
+					placeholder="Describe the item you found..."
+					required
+				></textarea>
+
+				<br /><br />
+
+				<!--location where item was found-->
+				<label for="location">Where did you find it?</label>
+				<br />
+
+				<!--text box -->
+				<input
+					type="text"
+					id="location"
+					name="location"
+					placeholder="Enter the location where you found the item..."
+					required
+				/>
+
+				<br /><br />
+
+				<!--date and time item was found-->
+				<label for="date">When did you find it?</label>
+				<br />
+
+				<!--date and time text-->
+				<input
+					type="datetime-local"
+					id="date"
+					name="date"
+					required
+				/>
+
+				<br /><br />
+
+				<!--submition buttton-->
+				<button type="submit">Submit Found Item</button>
+			</form>
+
+			<!--coonformation message of sbmition-->
+			<p id="confirmation"></p>
+        </main>
+
+        <!--javaScript for found item-->
+        <script src="reportLostItem.js"></script>
+	</body>
+</html>
