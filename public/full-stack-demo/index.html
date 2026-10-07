@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Full-Stack Demo</title>
+</head>
+<body>
+	<h1>Basic Full-Stack Demo</h1>
+	<p>
+		This is intentionally bare-bones layout- and CSS-wise, because it's not
+		intended to be an actual page on the website. Instead, it's largely
+		just meant to show how all the various components (frontend, backend,
+		database, etc) all interact and how to keep going from there.
+	</p>
+	<h2>Create Item</h2>
+	<form action="/api/v1/full-stack-demo/items" method="post">
+		<label for="item-name">Item Name</label>
+		<input type="text" name="name" id="item-name">
+
+		<br>
+
+		<label for="item-description">Item Description</label>
+		<input type="text" name="description" id="item-description">
+
+		<br>
+
+		<input type="submit" value="Create New Item">
+	</form>
+	<h2>Item List</h2>
+	<ul id="item-list">
+
+	</ul>
+
+	<script src="script.js"></script>
+</body>
+</html>
