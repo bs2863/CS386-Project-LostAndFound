@@ -7,6 +7,10 @@ const HOSTNAME = "127.0.0.1";
 
 // pull in dependencies
 const express = require('express');
+const { runMigrations } = require('./db');
+
+// initialize database
+runMigrations();
 
 // create app
 const app = express();
@@ -25,6 +29,10 @@ app.get("/api/v1/health", async (req, res) => {
 		message: "The server is currently healthy."
 	})
 });
+
+
+// not real API endpoints, but add full stack demo for reference purposes
+app.use('/api/v1/full-stack-demo/', require('./full-stack-demo/index'));
 
 
 // serve static files from /public/ as backup
