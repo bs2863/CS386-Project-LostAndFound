@@ -1,0 +1,173 @@
+{
+	"users": [
+		{
+			"id": "U001",
+			"schoolId": "lk123",
+			"name": "Louie King",
+			"email": "lk123@nau.edu",
+			"role": "user"
+		},
+		{
+			"id": "U002",
+			"schoolId": "jl456",
+			"name": "Jae Lee",
+			"email": "jl456@nau.edu",
+			"role": "user"
+		},
+		{
+			"id": "S001",
+			"schoolId": "jw789",
+			"name": "Jonathan Wince",
+			"email": "jw789@nau.edu",
+			"role": "staff"
+		}
+	],
+
+	"categories": [
+		{
+			"id": "C001",
+			"name": "Electronics"
+		},
+		{
+			"id": "C002",
+			"name": "Clothing"
+		},
+		{
+			"id": "C003",
+			"name": "Personal Items"
+		},
+		{
+			"id": "C004",
+			"name": "School Supplies"
+		},
+		{
+			"id": "C005",
+			"name": "Keys"
+		},
+		{
+			"id": "C006",
+			"name": "Other"
+		}
+	],
+
+	"locations": [
+		{
+			"id": "LOC001",
+			"name": "Cline Library"
+		},
+		{
+			"id": "LOC002",
+			"name": "University Union"
+		},
+		{
+			"id": "LOC003",
+			"name": "Health and Learning Center"
+		},
+		{
+			"id": "LOC004",
+			"name": "Adel Mathematics"
+		},
+		{
+			"id": "LOC005",
+			"name": "Engineering Building"
+		}
+	],
+
+	"items": [
+		{
+			"id": "L001",
+			"type": "lost",
+			"name": "Black Wallet",
+			"categoryId": "C003",
+			"color": "Black",
+			"brand": null,
+			"description": "Small black wallet",
+			"date": "2026-10-02",
+			"locationId": "LOC001",
+			"status": "open",
+			"reportedBy": "U001"
+		},
+		{
+			"id": "L002",
+			"type": "lost",
+			"name": "AirPods",
+			"categoryId": "C001",
+			"color": "White",
+			"brand": "Apple",
+			"description": "White AirPods in a case",
+			"date": "2026-10-03",
+			"locationId": "LOC002",
+			"status": "open",
+			"reportedBy": "U002"
+		},
+		{
+			"id": "L003",
+			"type": "lost",
+			"name": "Blue Hoodie",
+			"categoryId": "C002",
+			"color": "Blue",
+			"brand": "lululemon",
+			"description": "Blue zip-up hoodie",
+			"date": "2026-10-04",
+			"locationId": "LOC003",
+			"status": "resolved",
+			"reportedBy": "U001"
+		},
+		{
+			"id": "F001",
+			"type": "found",
+			"name": "Wallet",
+			"categoryId": "C003",
+			"color": "Black",
+			"brand": null,
+			"description": "Black wallet found near the library",
+			"date": "2026-10-03",
+			"locationId": "LOC001",
+			"status": "unclaimed",
+			"reportedBy": "S001"
+		},
+		{
+			"id": "F002",
+			"type": "found",
+			"name": "Headphones",
+			"categoryId": "C001",
+			"color": "Black",
+			"brand": "Bose",
+			"description": "Black over-ear headphones",
+			"date": "2026-10-04",
+			"locationId": "LOC002",
+			"status": "unclaimed",
+			"reportedBy": "S001"
+		},
+		{
+			"id": "F003",
+			"type": "found",
+			"name": "Green Water Bottle",
+			"categoryId": "C003",
+			"color": "Green",
+			"brand": "YETI",
+			"description": "Green water bottle",
+			"date": "2026-10-05",
+			"locationId": "LOC004",
+			"status": "claimed",
+			"reportedBy": "S001"
+		}
+	],
+
+	"claims": [
+		{
+			"id": "CL001",
+			"itemId": "F003",
+			"userId": "U002",
+			"status": "approved",
+			"date": "2026-10-06"
+		},
+		{
+			"id": "CL002",
+			"itemId": "F001",
+			"userId": "U001",
+			"status": "pending",
+			"date": "2026-10-07"
+		}
+	]
+}
