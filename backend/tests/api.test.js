@@ -29,9 +29,9 @@ beforeEach(() => {
 	db.exec('DELETE FROM Item');
 	db.exec(`
 		INSERT INTO Item (Type, Name, CategoryId, Description, Date, LocationId, Status) VALUES
-		('lost',  'Black Wallet', 'C003', 'Small black wallet',    '2026-10-02', 'LOC001', 'open'),
-		('found', 'Wallet',       'C003', 'Brown leather wallet',  '2026-10-03', 'LOC001', 'unclaimed'),
-		('found', 'Headphones',   'C001', 'Black Bose headphones', '2026-10-04', 'LOC002', 'unclaimed')
+		('lost',  'Black Wallet', 'C003', 'Small black wallet',    '2026-10-02', '28', 'open'),
+		('found', 'Wallet',       'C003', 'Brown leather wallet',  '2026-10-03', '28', 'unclaimed'),
+		('found', 'Headphones',   'C001', 'Black Bose headphones', '2026-10-04', '3', 'unclaimed')
 	`);
 });
 
@@ -56,8 +56,8 @@ test('GET locations returns the seeded locations', async () => {
 	const locations = await res.json();
 
 	assert.equal(res.status, 200);
-	assert.equal(locations.length, 5);
-	assert.deepEqual(locations[0], { id: 'LOC001', name: 'Cline Library' });
+	assert.equal(locations.length, 124);
+	assert.deepEqual(locations[0], { id: '26', name: 'Adel Mathematics' });
 });
 
 // Test GET items with category and location names
@@ -68,7 +68,7 @@ test('GET items includes category and location names', async () => {
 	assert.equal(res.status, 200);
 	assert.equal(item.name, 'Headphones');
 	assert.equal(item.categoryName, 'Electronics');
-	assert.equal(item.locationName, 'University Union');
+	assert.equal(item.locationName, 'North Union');
 });
 
 // Test GET items filtered by type
@@ -107,7 +107,7 @@ test('POST valid item is saved and shows up in GET items', async () => {
 		categoryId: 'C006',
 		description: 'Small blue umbrella',
 		date: '2026-10-05',
-		locationId: 'LOC005',
+		locationId: '26',
 	};
 
 	// act
@@ -122,7 +122,7 @@ test('POST valid item is saved and shows up in GET items', async () => {
 	assert.equal(res.status, 201);
 	assert.equal(saved.name, 'Blue Umbrella');
 	assert.equal(saved.status, 'unclaimed'); // default status for found items
-	assert.equal(saved.locationName, 'Engineering Building');
+	assert.equal(saved.locationName, 'Adel Mathematics');
 });
 
 // Test POST item with a category that doesn't exist

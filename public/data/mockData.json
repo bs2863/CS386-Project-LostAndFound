@@ -83,7 +83,7 @@
 			"brand": null,
 			"description": "Small black wallet",
 			"date": "2026-10-02",
-			"locationId": "LOC001",
+			"locationId": "28",
 			"status": "open",
 			"reportedBy": "U001"
 		},
@@ -96,7 +96,7 @@
 			"brand": "Apple",
 			"description": "White AirPods in a case",
 			"date": "2026-10-03",
-			"locationId": "LOC002",
+			"locationId": "3",
 			"status": "open",
 			"reportedBy": "U002"
 		},
@@ -109,7 +109,7 @@
 			"brand": "lululemon",
 			"description": "Blue zip-up hoodie",
 			"date": "2026-10-04",
-			"locationId": "LOC003",
+			"locationId": "25",
 			"status": "resolved",
 			"reportedBy": "U001"
 		},
@@ -122,7 +122,7 @@
 			"brand": null,
 			"description": "Black wallet found near the library",
 			"date": "2026-10-03",
-			"locationId": "LOC001",
+			"locationId": "28",
 			"status": "unclaimed",
 			"reportedBy": "S001"
 		},
@@ -135,7 +135,7 @@
 			"brand": "Bose",
 			"description": "Black over-ear headphones",
 			"date": "2026-10-04",
-			"locationId": "LOC002",
+			"locationId": "3",
 			"status": "unclaimed",
 			"reportedBy": "S001"
 		},
@@ -148,7 +148,7 @@
 			"brand": "YETI",
 			"description": "Green water bottle",
 			"date": "2026-10-05",
-			"locationId": "LOC004",
+			"locationId": "26",
 			"status": "claimed",
 			"reportedBy": "S001"
 		}
