@@ -1,2 +1,16 @@
-body { margin: 0; padding: 0; }
-html, body, #map { height: 100%; }
+html, body {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+
+	display: flex;
+	flex-direction: column;
+}
+
+#map {
+	width: 100%;
+	height: 100%;
+}
