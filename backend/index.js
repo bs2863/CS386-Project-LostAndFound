@@ -42,11 +42,11 @@ app.use('/api/v1/items', require('./items'));
 // Dropdown options for the report forms
 // ("AS id" / "AS name" so the JSON matches public/data/mockData.json)
 app.get('/api/v1/categories', (req, res) => {
-	return res.status(200).json(query('SELECT Id AS id, Name AS name FROM Category ORDER BY Id'));
+	return res.status(200).json(query('SELECT Id AS id, Name AS name FROM Category ORDER BY Id;'));
 });
 
 app.get('/api/v1/locations', (req, res) => {
-	return res.status(200).json(query('SELECT Id AS id, Name AS name FROM Location ORDER BY Id'));
+	return res.status(200).json(query('SELECT Id AS id, Name AS name FROM Location ORDER BY Name ASC;'));
 });
 
 // serve static files from /public/ as backup
