@@ -161,8 +161,10 @@ label {
 
 .navbar-links {
 	display: flex;
-	gap: 22px;
-	margin-left: 0;
+	flex: 1;
+	gap: 16px;
+	justify-content: center;
+	min-width: 0;
 	flex-wrap: wrap;
 }
 
@@ -170,9 +172,6 @@ label {
 	color: var(--text);
 	text-decoration: none;
 	white-space: nowrap;
-}
-
-.navbar-links a {
 	padding: 8px 4px;
 	border-bottom: 2px solid transparent;
 	transition:
@@ -190,15 +189,21 @@ label {
 	outline-offset: 3px;
 }
 
+/* for user based hidden menu */
+.navbar-links a[hidden] {
+	display: none;
+}
+
 /* =========================
-   NAVBAR ACCOUNT
+		NAVBAR ACCOUNT
 ========================= */
 
 .navbar-account {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	margin-left: 16px;
+	gap: 8px;
+	margin-left: 0;
+	flex-shrink: 0;
 }
 
 .navbar-status {
@@ -216,6 +221,7 @@ label {
 	font-weight: 500;
 	padding: 6px 12px;
 	border: 1px solid var(--nau-blue);
+	white-space: nowrap; /* show login and logout in one line */
 }
 
 .navbar-login:hover {
@@ -228,18 +234,70 @@ label {
 	outline-offset: 2px;
 }
 
-@media (max-width: 700px) {
+/* switch to two row navbar when screen gets narrower */
+@media (max-width: 1200px) {
 	.navbar {
-		flex-wrap: wrap;
-		gap: 12px;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			'brand account'
+			'links links';
+		align-items: center;
+		gap: 16px 12px;
+	}
+
+	.navbar-brand {
+		grid-area: brand;
+		min-width: 0;
 	}
 
 	.navbar-links {
-		margin-left: 0;
+		grid-area: links;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 8px 24px;
+		margin: 0;
 	}
 
 	.navbar-account {
-		margin-left: auto;
+		grid-area: account;
+		justify-self: end;
+		margin: 0;
+	}
+}
+
+/* small device screens */
+@media (max-width: 600px) {
+	.navbar {
+		padding: 12px 16px;
+		gap: 12px;
+	}
+
+	.navbar-logo {
+		height: 28px;
+	}
+
+	.navbar-brand {
+		gap: 8px;
+	}
+
+	.navbar-links {
+		gap: 6px 14px;
+	}
+
+	.navbar-links a {
+		font-size: 14px;
+	}
+
+	.navbar-account {
+		gap: 6px;
+	}
+
+	.navbar-login {
+		padding: 6px 8px;
+		font-size: 14px;
 	}
 }
 

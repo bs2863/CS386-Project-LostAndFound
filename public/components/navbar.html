@@ -12,18 +12,25 @@
 		<button type="submit">Search</button>
 	</form> -->
 
+	<!-- Navigation for role based view : added hidden feature -->
 
-	<!-- Navigation for D4 prototype -->
 	<div class="navbar-links">
 		<a href="/home.html">Find Items</a>
-		<a href="/reportPage.html">Report Lost Item</a>
-		<a href="/reportFoundItem.html">Report Found Item</a>
-		<a href="/staffManagementPage.html">Staff Management</a>
+
+		<a id="reportLostLink" href="/reportPage.html" hidden>Report Lost Item</a>
+
+		<a id="registerFoundLink" href="/reportFoundItem.html" hidden
+			>Register Found Item</a
+		>
+
+		<a id="manageItemsLink" href="/staffManagementPage.html" hidden
+			>Manage Items</a
+		>
 	</div>
 
-	<!-- Login status (Guest until authentication is connected) -->
+	<!-- Login status (Guest or staff or user will be shown) -->
 	<div class="navbar-account">
-		<span class="navbar-status">Guest</span>
-		<a href="/" class="navbar-login">Log In</a>
+		<span id="navbarStatus" class="navbar-status">Guest</span>
+		<a id="navbarLogin" href="/" class="navbar-login">Log In</a>
 	</div>
 </nav>
