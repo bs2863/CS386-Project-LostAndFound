@@ -24,6 +24,17 @@
 				<button type="submit">Search</button>
 			</form>
 
+			<!-- Dropdown menu to display items by location-->
+			<div class="location-filter">
+				<label for="locationSelect">
+					Do you know where you lost your item? Filter by location
+				</label>
+
+				<select id="locationSelect" aria-label="Filter items by location">
+					<option value="">All Locations</option>
+				</select>
+			</div>
+
 			<!-- How many items matched (or an error message) -->
 			<p id="resultCount" role="status"></p>
 
