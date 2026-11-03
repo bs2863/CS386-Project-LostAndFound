@@ -430,9 +430,6 @@ label {
 	width: 100%;
 }
 
-/* =========================
-   REPORT FOUND ITEM PAGE
-========================= */
 
 .found-item-page {
 	box-sizing: border-box;
@@ -533,4 +530,59 @@ label {
 	border-left: 4px solid var(--nau-blue);
 	border-radius: 6px;
 	line-height: 1.4;
+}
+
+
+
+
+/* =========================
+   REPORT LOST ITEM PAGE
+========================= */
+
+.lost-item-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lost-item-form > label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 600;
+}
+
+/* location label and dropdown are separate */
+.lost-item-form > label[for="locationId"] {
+    margin-bottom: -8px;
+}
+
+.lost-item-form input,
+.lost-item-form select {
+    width: 100%;
+    min-width: 0;
+}
+
+/* phone and email on the same row */
+.lost-item-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.lost-item-form button[type="submit"] {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.lost-item-message {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .lost-item-row {
+        grid-template-columns: 1fr;
+    }
 }
