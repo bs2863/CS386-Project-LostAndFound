@@ -76,6 +76,8 @@ router.post('/', (req, res) => {
 		date,
 		locationId,
 		status,
+		phone,
+    	email
 	} = req.body || {};
 
 	// validation of required fields
@@ -112,23 +114,51 @@ router.post('/', (req, res) => {
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
-		const result = command.run(
-			type,
-			name.trim(),
-			categoryId,
-			color ?? null,
-			brand ?? null,
-			description,
-			date,
-			locationId,
-			status || (type === 'found' ? 'unclaimed' : 'open'),
-		);
 
-		return res.status(201).json({
-			// auto create id number
-			id: Number(result.lastInsertRowid),
-			message: 'Item created successfully',
-		});
+        // Save item and contact information together
+        let result;
+
+        try {
+            db.exec('BEGIN');
+
+            result = command.run(
+                type,
+                name.trim(),
+                categoryId,
+                color ?? null,
+                brand ?? null,
+                description,
+                date,
+                locationId,
+                status || (type === 'found' ? 'unclaimed' : 'open'),
+            );
+
+            // Save contact information for lost items only
+            if (type === 'lost') {
+                const contactCommand = db.prepare(`
+                    INSERT INTO LostReportContact (ItemId, Phone, Email)
+                    VALUES (?, ?, ?)
+                `);
+
+                contactCommand.run(
+                    Number(result.lastInsertRowid),
+                    phone?.trim() || null,
+                    email?.trim() || null
+                );
+            }
+
+            db.exec('COMMIT');
+        } catch (error) {
+            db.exec('ROLLBACK');
+            throw error;
+        }
+
+        return res.status(201).json({
+            id: Number(result.lastInsertRowid),
+            message: 'Item created successfully',
+        });
+
+
 	} catch (error) {
 		console.error('Failed to create an item:', error);
 		return res.status(500).json({

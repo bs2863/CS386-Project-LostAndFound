@@ -68,17 +68,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     lostItemForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // get values from the form
+        const formData = new FormData(lostItemForm);
 
+        // match the existing backend API structure
         const lostItem = {
-        shortDescription: lostItemForm.shortDescription.value.trim(),
-        category: lostItemForm.category.value.trim(),
-        lostDate: lostItemForm.lostDate.value.trim(),
-        lostTime: lostItemForm.lostTime.value.trim(),
-        location: lostItemForm.location.value.trim(),
-        description: lostItemForm.description.value.trim(),
-        phone: lostItemForm.phone.value.trim(),
-        email: lostItemForm.email.value.trim()
+            type: 'lost',
+            name: formData.get('shortDescription')?.trim(),
+            categoryId: formData.get('category'),
+            date: formData.get('lostDate'),
+            locationId: formData.get('location'),
+            description: formData.get('description')?.trim(),
+            phone: formData.get('phone')?.trim() || null,
+            email: formData.get('email')?.trim() || null,
+            status: 'open'
         };
+
+        // send lost item to the backend
+        try {
+            const response = await fetch('/api/v1/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lostItem)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit lost item');
+            }
+
+            const savedItem = await response.json();
+
+            duplicateItemMessage.textContent =
+                `Lost item submitted successfully. Item ID: ${savedItem.id}`;
+
+            lostItemForm.reset();
+
+        } catch (error) {
+            console.error(error);
+            duplicateItemMessage.textContent =
+                'Failed to submit lost item. Please try again.';
+        }
     });
 
     duplicateItemMessage.textContent = 'Checking for possible duplication records...';
