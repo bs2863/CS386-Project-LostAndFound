@@ -165,4 +165,12 @@ module.exports = [
         ('96B', 'San Francisco Street Parking Structure'),
         ('96G', 'SkyView Parking Structure');
         `,
+
+        // Save contact information for lost item reports
+        `CREATE TABLE IF NOT EXISTS LostReportContact (
+                ItemId INTEGER PRIMARY KEY,
+                Phone TEXT,
+                Email TEXT,
+                FOREIGN KEY (ItemId) REFERENCES Item(Id)
+        );`,
 ];
