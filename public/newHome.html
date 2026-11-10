@@ -42,7 +42,10 @@
 						<div class="report-status">
 							<span class="status-badge">Matches found</span>
 							<p>2 possible matches</p>
-							<button type="button" popovertarget="matches-black-wallet">Review matches</button>
+							<div class="report-actions">
+								<button type="button" class="button-secondary">Cancel report</button>
+								<button type="button" popovertarget="matches-black-wallet">Review matches</button>
+							</div>
 						</div>
 					</li>
 
@@ -89,10 +92,21 @@
 							<p>Picked up Oct 6, 2026</p>
 						</div>
 					</li>
+					<li class="report-card status-closed">
+						<div class="report-info">
+							<h3>Graphing Calculator</h3>
+							<p>School Supplies · Liberal Arts · Lost Sep 28, 2026</p>
+						</div>
+						<div class="report-status">
+							<span class="status-badge">Cancelled</span>
+							<p>Cancelled Oct 9, 2026</p>
+						</div>
+					</li>
 				</ul>
 			</details>
 		</main>
 
+		<!-- Static popup for Black Wallet matches -->
 		<div id="matches-black-wallet" class="matches-panel" popover>
 			<h2>Possible matches for: Black Wallet</h2>
 			<p class="matches-help">
@@ -118,7 +132,6 @@
 				</li>
 			</ul>
 
-			<!-- popovertargetaction="hide" closes the panel -->
 			<button
 				type="button"
 				class="matches-close"
