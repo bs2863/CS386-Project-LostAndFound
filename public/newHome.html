@@ -12,11 +12,7 @@
 		<!-- Shared Navbar for Site Wide -->
 		<div id="navbar"></div>
 
-		<!--
-			New home page: the user's "inbox" of lost item reports.
-			MOCKUP: the reports below are hard-coded samples, one per status.
-			They will be loaded from the database in a later PR.
-		-->
+		<!-- The user's 'inbox' of lost item reports -->
 		<main class="container inbox-page">
 			<div class="inbox-header">
 				<div>
@@ -26,83 +22,19 @@
 				<a class="inbox-new-report" href="/reportPage.html">Report a lost item</a>
 			</div>
 
+			<!-- Messages: errors or important notices -->
+			<p id="inboxMessage" class="inbox-message" role="status"></p>
 
 			<!-- Open reports: still waiting to be picked up -->
-			<section aria-labelledby="openReportsHeading">
+			<section id="openSection" aria-labelledby="openReportsHeading" hidden>
 				<h2 id="openReportsHeading">Open reports</h2>
-
-				<!-- Mock Data pre-filled in for demonstration purposes -->
-				<ul class="report-list">
-					<!-- Status: Matches found -->
-					<li class="report-card status-matches">
-						<div class="report-info">
-							<h3>Black Wallet</h3>
-							<p>Personal Items · Cline Library · Lost Oct 2, 2026</p>
-						</div>
-						<div class="report-status">
-							<span class="status-badge">Matches found</span>
-							<p>2 possible matches</p>
-							<div class="report-actions">
-								<button type="button" class="button-secondary">Cancel report</button>
-								<button type="button" popovertarget="matches-black-wallet">Review matches</button>
-							</div>
-						</div>
-					</li>
-
-					<!-- Status: Ready for pickup -->
-					<li class="report-card status-pickup">
-						<div class="report-info">
-							<h3>Blue Hoodie</h3>
-							<p>Clothing · Health & Learning Center · Lost Oct 4, 2026</p>
-						</div>
-						<div class="report-status">
-							<span class="status-badge">Ready for pickup</span>
-							<p>Claimed: pick up at Health & Learning Center</p>
-							<button type="button">Mark as picked up</button>
-						</div>
-					</li>
-
-					<!-- Status: Searching -->
-					<li class="report-card status-searching">
-						<div class="report-info">
-							<h3>AirPods</h3>
-							<p>Electronics · North Union · Lost Oct 3, 2026</p>
-						</div>
-						<div class="report-status">
-							<span class="status-badge">Searching</span>
-							<p>No likely matches yet</p>
-						</div>
-					</li>
-				</ul>
+				<ul id="openReports" class="report-list"></ul>
 			</section>
 
 			<!-- Closed reports: collapsed by default -->
-			<details class="closed-reports">
-				<summary>Closed reports (1)</summary>
-
-				<ul class="report-list">
-					<!-- Status: Picked up -->
-					<li class="report-card status-closed">
-						<div class="report-info">
-							<h3>Green Water Bottle</h3>
-							<p>Personal Items · Adel Mathematics · Lost Oct 5, 2026</p>
-						</div>
-						<div class="report-status">
-							<span class="status-badge">Picked up</span>
-							<p>Picked up Oct 6, 2026</p>
-						</div>
-					</li>
-					<li class="report-card status-closed">
-						<div class="report-info">
-							<h3>Graphing Calculator</h3>
-							<p>School Supplies · Liberal Arts · Lost Sep 28, 2026</p>
-						</div>
-						<div class="report-status">
-							<span class="status-badge">Cancelled</span>
-							<p>Cancelled Oct 9, 2026</p>
-						</div>
-					</li>
-				</ul>
+			<details id="closedSection" class="closed-reports" hidden>
+				<summary id="closedSummary">Closed reports</summary>
+				<ul id="closedReports" class="report-list"></ul>
 			</details>
 		</main>
 
@@ -143,5 +75,6 @@
 
 		<!-- JS -->
 		<script src="/js/navbar.js"></script>
+		<script src="/js/newHome.js"></script>
 	</body>
 </html>

@@ -276,3 +276,16 @@
 		align-items: flex-start;
 	}
 }
+
+/* =========================
+   MESSAGES (reports, errors)
+========================= */
+
+.inbox-message {
+	margin: 24px 0 0;
+	color: var(--muted);
+}
+
+.inbox-message:empty {
+	display: none;
+}
