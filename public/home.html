@@ -3,44 +3,75 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>NAU Lost & Found</title>
+		<title>My Reports | NAU Lost & Found</title>
 		<!-- CSS -->
 		<link rel="stylesheet" href="/css/style.css" />
+		<link rel="stylesheet" href="/css/home.css" />
 	</head>
 	<body>
 		<!-- Shared Navbar for Site Wide -->
 		<div id="navbar"></div>
-		<main class="container find-items-page">
-			<h1>Find Items</h1>
-			<p>Search the items that have been turned in on campus.</p>
 
-			<!-- Search form: sends GET request -->
-			<form id="searchForm">
-				<input
-					type="search"
-					id="itemInput"
-					placeholder="Search found item"
-					aria-label="Search found items" />
-				<button type="submit">Search</button>
-			</form>
-
-			<!-- Dropdown menu to display items by location-->
-			<div class="location-filter">
-				<label for="locationSelect">
-					Do you know where you lost your item? Filter by location
-				</label>
-
-				<select id="locationSelect" aria-label="Filter items by location">
-					<option value="">All Locations</option>
-				</select>
+		<!-- The user's 'inbox' of lost item reports -->
+		<main class="container inbox-page">
+			<div class="inbox-header">
+				<div>
+					<h1>My Lost Item Reports</h1>
+					<p>Track your reports and claim your item when a match is found.</p>
+				</div>
+				<a class="inbox-new-report" href="/reportPage.html">Report a lost item</a>
 			</div>
 
-			<!-- How many items matched (or an error message) -->
-			<p id="resultCount" role="status"></p>
+			<!-- Messages: errors or important notices -->
+			<p id="inboxMessage" class="inbox-message" role="status"></p>
 
-			<!-- Found items from the server are listed here -->
-			<ul id="itemList"></ul>
+			<!-- Open reports: still waiting to be picked up -->
+			<section id="openSection" aria-labelledby="openReportsHeading" hidden>
+				<h2 id="openReportsHeading">Open reports</h2>
+				<ul id="openReports" class="report-list"></ul>
+			</section>
+
+			<!-- Closed reports: collapsed by default -->
+			<details id="closedSection" class="closed-reports" hidden>
+				<summary id="closedSummary">Closed reports</summary>
+				<ul id="closedReports" class="report-list"></ul>
+			</details>
 		</main>
+
+		<!-- Static popup for Black Wallet matches -->
+		<div id="matches-black-wallet" class="matches-panel" popover>
+			<h2>Possible matches for: Black Wallet</h2>
+			<p class="matches-help">
+				Pick the item that is yours. It will be held for you, and staff
+				will check your ID when you pick it up.
+			</p>
+
+			<ul class="match-list">
+				<li class="match-card">
+					<div class="report-info">
+						<h3>Wallet</h3>
+						<p>Personal Items · Found at Cline Library · Oct 3, 2026</p>
+					</div>
+					<button type="button">Claim this item</button>
+				</li>
+
+				<li class="match-card">
+					<div class="report-info">
+						<h3>Black Card Holder</h3>
+						<p>Personal Items · Found at Gammage · Oct 5, 2026</p>
+					</div>
+					<button type="button">Claim this item</button>
+				</li>
+			</ul>
+
+			<button
+				type="button"
+				class="matches-close"
+				popovertarget="matches-black-wallet"
+				popovertargetaction="hide">
+				None of these are mine
+			</button>
+		</div>
 
 		<!-- JS -->
 		<script src="/js/navbar.js"></script>
