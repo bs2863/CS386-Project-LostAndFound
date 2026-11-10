@@ -65,56 +65,55 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	lostItemForm.addEventListener('submit', async (e) => {
-		e.preventDefault();
+    e.preventDefault();
 
-		// get values from the form
-		const formData = new FormData(lostItemForm);
+    try {
+		//get values from the form
+        const formData = new FormData(lostItemForm);
 
 		// match the existing backend API structure
-		const lostItem = {
-			type: 'lost',
-			name: formData.get('itemName')?.trim(),
-			categoryId: formData.get('category'),
-			date: formData.get('lostDate'),
-			locationId: formData.get('location'),
-			description: formData.get('description')?.trim(),
-			phone: formData.get('phone')?.trim() || null,
-			email: formData.get('email')?.trim() || null,
-			status: 'open',
-		};
+        const lostItem = {
+            type: 'lost',
+            name: formData.get('itemName')?.trim(),
+            categoryId: formData.get('category'),
+            date: formData.get('lostDate'),
+            locationId: formData.get('location'),
+            description: formData.get('description')?.trim(),
+            phone: formData.get('phone')?.trim() || null,
+            email: formData.get('email')?.trim() || null,
+            status: 'open',
+        };
 
+        	// Check for duplicates
+        	const duplicates = await checkDuplicates(lostItem);
+			// if duplicates exist, stop submission
+        if (duplicates.length > 0) {
+            	duplicateItemMessage.textContent =
+                'Possible duplicate item found. Please check.';
+            return;
+        }
+        // Submit item if no duplicate exists
 		// send lost item to the backend
-		try {
-			const response = await fetch('/api/v1/items', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(lostItem),
-			});
+        const response = await fetch('/api/v1/items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lostItem),
+        });
 
-			if (!response.ok) {
-				throw new Error('Failed to submit lost item');
-			}
+        if (!response.ok) {
+            throw new Error('Failed to submit lost item');
+        }
 
-			const savedItem = await response.json();
+		const savedItem = await response.json();
 
-			duplicateItemMessage.textContent = `Lost item submitted successfully. Item ID: ${savedItem.id}`;
+        duplicateItemMessage.textContent = `Lost item submitted successfully. Item ID: ${savedItem.id}`;
 
-			lostItemForm.reset();
-		} catch (error) {
-			console.error(error);
-			duplicateItemMessage.textContent =
-				'Failed to submit lost item. Please try again.';
-		}
+        lostItemForm.reset();
+    } catch (error) {
+        console.error(error);
+        duplicateItemMessage.textContent =
+            'Failed to submit lost item. Please try again.';
+    }
 	});
 
-	duplicateItemMessage.textContent =
-		'Checking for possible duplication records...';
-
-	//check database for duplicates
-
-	//if lost item is a duplicate, display a message
-
-	//if it is not a duplicate, submit the form
-
-	// send error message if submission fails
 });

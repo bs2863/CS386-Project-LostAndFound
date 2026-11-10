@@ -61,6 +61,49 @@ router.get('/', (req, res) => {
 	}
 });
 
+// POST /api/v1/items/check-duplicate
+// Check whether an item already exists
+router.post('/check-duplicate', (req, res) => {
+    const { name, categoryId, locationId } = req.body || {};
+
+    // Check required fields
+    if (!name || !categoryId || !locationId) {
+        return res.status(400).json({
+            error: 'Missing required fields'
+        });
+    }
+	// try to check for duplicate item in the database
+    try {
+        const duplicate = db.prepare(`
+            SELECT 1
+            FROM Item
+            WHERE Name = ?
+            AND CategoryId = ?
+            AND LocationId = ?
+            LIMIT 1
+        `).get(name.trim(), categoryId, locationId);
+		// if duplicate exists, return early
+        if (duplicate) {
+            return res.status(200).json({
+                duplicate: true,
+                message: 'A similar item already exists'
+            });
+        }
+        // if no duplicate exists, return no duplicate found
+        return res.status(200).json({
+            duplicate: false,
+            message: 'No duplicate found'
+        });
+
+    } catch (error) {
+        console.error('Duplicate check error:', error);
+
+        return res.status(500).json({
+            error: 'Failed to check duplicates'
+        });
+    }
+});
+
 // POST /api/v1/items
 // create new item to database
 router.post('/', (req, res) => {
@@ -105,7 +148,23 @@ router.post('/', (req, res) => {
 				error: 'Unknown category or location',
 			});
 		}
-
+		
+		// Check for duplicate item before insertion
+		const duplicate = db.prepare(`
+            SELECT 1
+            FROM Item
+            WHERE Name = ?
+            AND CategoryId = ?
+            AND LocationId = ?
+            LIMIT 1
+        `).get(name.trim(), categoryId, locationId);
+			// if duplicate exists, return early
+		if (duplicate) {
+			return res.status(400).json({
+				error: 'A similar item already exists'
+			});
+		}
+		// if no duplicate exists, proceed with insertion
 		// declare and define SQL for safe insertion to SQLite
 		const command = db.prepare(`
         INSERT INTO Item (
