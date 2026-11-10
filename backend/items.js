@@ -7,7 +7,7 @@ const router = express.Router();
 // get all items from database
 // optional filters: ?type=lost|found  and  ?q=search text
 router.get('/', (req, res) => {
-	const { type, q } = req.query;
+	const { type, q, locationId, email } = req.query;
 
 	// "AS name" etc. give camelCase JSON, (the same shape as mockData.json)
 	// The JOINs add readable category/location names next to the ids
@@ -33,6 +33,17 @@ router.get('/', (req, res) => {
 		params.push(type);
 	}
 
+	if (typeof locationId === 'string' && locationId.trim()) {
+		conditions.push('i.LocationId = ?');
+		params.push(locationId.trim());
+	}
+
+	if (typeof email === 'string' && email.trim()) {
+		sql += ' JOIN LostReportContact rc ON rc.ItemId = i.Id';
+		conditions.push('LOWER(rc.Email) = LOWER(?)');
+		params.push(email.trim());
+	}
+
 	if (typeof q === 'string' && q.trim()) {
 		// LIKE is case-insensitive in SQLite; % matches anything around the text
 		conditions.push('(i.Name LIKE ? OR i.Description LIKE ?)');
@@ -56,6 +67,49 @@ router.get('/', (req, res) => {
 	}
 });
 
+// POST /api/v1/items/check-duplicate
+// Check whether an item already exists
+router.post('/check-duplicate', (req, res) => {
+    const { name, categoryId, locationId } = req.body || {};
+
+    // Check required fields
+    if (!name || !categoryId || !locationId) {
+        return res.status(400).json({
+            error: 'Missing required fields'
+        });
+    }
+	// try to check for duplicate item in the database
+    try {
+        const duplicate = db.prepare(`
+            SELECT 1
+            FROM Item
+            WHERE Name = ?
+            AND CategoryId = ?
+            AND LocationId = ?
+            LIMIT 1
+        `).get(name.trim(), categoryId, locationId);
+		// if duplicate exists, return early
+        if (duplicate) {
+            return res.status(200).json({
+                duplicate: true,
+                message: 'A similar item already exists'
+            });
+        }
+        // if no duplicate exists, return no duplicate found
+        return res.status(200).json({
+            duplicate: false,
+            message: 'No duplicate found'
+        });
+
+    } catch (error) {
+        console.error('Duplicate check error:', error);
+
+        return res.status(500).json({
+            error: 'Failed to check duplicates'
+        });
+    }
+});
+
 // POST /api/v1/items
 // create new item to database
 router.post('/', (req, res) => {
@@ -71,6 +125,8 @@ router.post('/', (req, res) => {
 		date,
 		locationId,
 		status,
+		phone,
+    	email
 	} = req.body || {};
 
 	// validation of required fields
@@ -98,7 +154,23 @@ router.post('/', (req, res) => {
 				error: 'Unknown category or location',
 			});
 		}
-
+		
+		// Check for duplicate item before insertion
+		const duplicate = db.prepare(`
+            SELECT 1
+            FROM Item
+            WHERE Name = ?
+            AND CategoryId = ?
+            AND LocationId = ?
+            LIMIT 1
+        `).get(name.trim(), categoryId, locationId);
+			// if duplicate exists, return early
+		if (duplicate) {
+			return res.status(400).json({
+				error: 'A similar item already exists'
+			});
+		}
+		// if no duplicate exists, proceed with insertion
 		// declare and define SQL for safe insertion to SQLite
 		const command = db.prepare(`
         INSERT INTO Item (
@@ -107,23 +179,51 @@ router.post('/', (req, res) => {
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
-		const result = command.run(
-			type,
-			name.trim(),
-			categoryId,
-			color ?? null,
-			brand ?? null,
-			description,
-			date,
-			locationId,
-			status || (type === 'found' ? 'unclaimed' : 'open'),
-		);
 
-		return res.status(201).json({
-			// auto create id number
-			id: Number(result.lastInsertRowid),
-			message: 'Item created successfully',
-		});
+        // Save item and contact information together
+        let result;
+
+        try {
+            db.exec('BEGIN');
+
+            result = command.run(
+                type,
+                name.trim(),
+                categoryId,
+                color ?? null,
+                brand ?? null,
+                description,
+                date,
+                locationId,
+                status || (type === 'found' ? 'unclaimed' : 'open'),
+            );
+
+            // Save contact information for lost items only
+            if (type === 'lost') {
+                const contactCommand = db.prepare(`
+                    INSERT INTO LostReportContact (ItemId, Phone, Email)
+                    VALUES (?, ?, ?)
+                `);
+
+                contactCommand.run(
+                    Number(result.lastInsertRowid),
+                    phone?.trim() || null,
+                    email?.trim() || null
+                );
+            }
+
+            db.exec('COMMIT');
+        } catch (error) {
+            db.exec('ROLLBACK');
+            throw error;
+        }
+
+        return res.status(201).json({
+            id: Number(result.lastInsertRowid),
+            message: 'Item created successfully',
+        });
+
+
 	} catch (error) {
 		console.error('Failed to create an item:', error);
 		return res.status(500).json({

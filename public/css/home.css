@@ -1,0 +1,291 @@
+/* =========================
+   NEW HOME (INBOX) PAGE
+   Loaded only by home.html, after style.css,
+   so it can use the shared colors in :root.
+========================= */
+
+/* page card, same look as the Report Found Item page */
+.inbox-page {
+	border: 1px solid var(--border);
+}
+
+.inbox-page h1 {
+	margin: 0 0 8px;
+	color: var(--nau-blue);
+}
+
+.inbox-page h2 {
+	margin: 28px 0 12px;
+	font-size: 20px;
+}
+
+/* title on the left, "Report a lost item" on the right */
+.inbox-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.inbox-header p {
+	margin: 0;
+	color: var(--muted);
+}
+
+/* a link styled like the site's buttons */
+.inbox-new-report {
+	padding: 10px 18px;
+	background: var(--nau-blue);
+	color: white;
+	border-radius: 6px;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.inbox-new-report:hover {
+	background: #004780;
+}
+
+.inbox-new-report:focus-visible {
+	outline: 3px solid var(--nau-gold);
+	outline-offset: 2px;
+}
+
+/* =========================
+   REPORT CARDS
+========================= */
+
+.report-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+/* what was lost on the left, its status on the right */
+.report-card {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	padding: 16px;
+	border: 1px solid var(--border);
+	border-left: 5px solid var(--border); /* colored by status below */
+	border-radius: 6px;
+}
+
+.report-info h3 {
+	margin: 0 0 4px;
+	font-size: 18px;
+}
+
+.report-info p {
+	margin: 0;
+	color: var(--muted);
+}
+
+.report-status {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 6px;
+	text-align: right;
+}
+
+.report-status p {
+	margin: 0;
+	font-size: 14px;
+	color: var(--muted);
+}
+
+/* small rounded label, e.g. "MATCHES FOUND" */
+.status-badge {
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+/* =========================
+   STATUS COLORS
+   (card edge + badge, one block per status)
+========================= */
+
+/* Matches found: needs the user's attention */
+.status-matches {
+	border-left-color: var(--nau-gold);
+}
+.status-matches .status-badge {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+/* Ready for pickup */
+.status-pickup {
+	border-left-color: #16a34a;
+}
+.status-pickup .status-badge {
+	background: #dcfce7;
+	color: #166534;
+}
+
+/* Searching: nothing to do yet */
+.status-searching {
+	border-left-color: var(--nau-blue);
+}
+.status-searching .status-badge {
+	background: #e0e7ef;
+	color: var(--nau-blue);
+}
+
+/* Picked up: finished, so faded */
+.status-closed {
+	opacity: 0.75;
+}
+.status-closed .status-badge {
+	background: #f3f4f6;
+	color: var(--muted);
+}
+
+/* =========================
+   CLOSED REPORTS (collapsed section)
+========================= */
+
+.closed-reports {
+	margin-top: 28px;
+}
+
+.closed-reports summary {
+	cursor: pointer;
+	font-weight: 600;
+	color: var(--muted);
+	margin-bottom: 12px;
+}
+
+/* =========================
+   PHONES: stack each card's two halves
+========================= */
+
+@media (max-width: 600px) {
+	.report-card {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.report-status {
+		align-items: flex-start;
+		text-align: left;
+	}
+}
+
+/* =========================
+   BUTTONS INSIDE A CARD
+========================= */
+
+/* buttons side by side, e.g. "Cancel report" + "Review matches" */
+.report-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+/* outlined version of the site's button, for less important actions */
+.button-secondary {
+	background: white;
+	color: var(--nau-blue);
+}
+
+.button-secondary:hover:not(:disabled) {
+	background: #e0e7ef;
+	color: var(--nau-blue);
+}
+
+/* =========================
+   "REVIEW MATCHES" PANEL (popover)
+========================= */
+
+.matches-panel {
+	box-sizing: border-box;
+	width: min(100% - 32px, 640px);
+	padding: 28px;
+	border: 1px solid var(--border);
+	border-top: 5px solid var(--nau-gold);
+	border-radius: 8px;
+	background: var(--surface);
+	color: var(--text);
+}
+
+/* dim the page behind the open panel */
+.matches-panel::backdrop {
+	background: rgba(0, 0, 0, 0.4);
+}
+
+.matches-panel h2 {
+	margin: 0 0 8px;
+	color: var(--nau-blue);
+	font-size: 22px;
+}
+
+.matches-help {
+	margin: 0 0 20px;
+	color: var(--muted);
+	line-height: 1.5;
+}
+
+.match-list {
+	list-style: none;
+	margin: 0 0 20px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+/* one possible match: details on the left, "Claim this item" on the right */
+.match-card {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	padding: 14px 16px;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+}
+
+/* "None of these are mine": outlined, full width */
+.matches-close {
+	width: 100%;
+	background: white;
+	color: var(--nau-blue);
+}
+
+.matches-close:hover:not(:disabled) {
+	background: #e0e7ef;
+	color: var(--nau-blue);
+}
+
+@media (max-width: 600px) {
+	.match-card {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+/* =========================
+   MESSAGES (reports, errors)
+========================= */
+
+.inbox-message {
+	margin: 24px 0 0;
+	color: var(--muted);
+}
+
+.inbox-message:empty {
+	display: none;
+}

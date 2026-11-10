@@ -1,44 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Report Lost Item | NAU Lost & Found</title>
 
-	<title>Report Lost Item | NAU Lost & Found</title>
+		<link rel="stylesheet" href="../css/style.css" />
+	</head>
 
-	<link rel="stylesheet" href="../css/style.css">
-</head>
+	<body>
+		<div id="navbar"></div>
 
-<body>
-	<div id="navbar"></div>
-
-	<main>
-		
-		<!-- Page Title -->
-
-		<div class="page-title">
-
+		<main class="container found-item-page">
 			<h1>Report Lost Item</h1>
 			<p>Complete the fields below to report the lost item.</p>
-		</div>
-
-    <!-- The Form -->
-		<div class="lost-item-container">
-
 			<form id="lostItemForm" class="lost-item-form">
-
-				<!-- Short description -->
+				<!-- Item Name -->
 
 				<label>
-					Short description
+					Item Name
 
 					<input
 						type="text"
-						name="shortDescription"
-						placeholder="Enter a brief description"
-						required
-					>
+						name="itemName"
+						placeholder="e.g. Black Wallet, AirPods, Student ID"
+						required />
 				</label>
 
 				<!-- Category -->
@@ -47,92 +34,60 @@
 					Category
 
 					<select name="category" required>
-
-						<option value="" disabled selected>
-							Select category
-						</option>
-
+						<option value="" disabled selected>Select category</option>
 					</select>
-
 				</label>
 
 				<!-- Date and time -->
 
 				<label>
-					Approx. date lost 
-					<input 
-						type="date" 
-						name="lostDate"
-						required
-					>
+					Approx. date lost
+					<input type="date" name="lostDate" required />
 				</label>
 
 				<!-- Location -->
 
-				<label>
-					Last known location
-					<input
-						type="text"
-						name="location"
-						placeholder="Building, room, or area"
-					>
-
-				</label>
+				<label for="locationId"> Last known location </label>
+				<select id="locationId" name="location" required>
+					<option value="" disabled selected>Select location</option>
+				</select>
 
 				<!-- Description -->
 
 				<label>
-
 					Description
 
 					<input
 						type="text"
 						name="description"
 						placeholder="Color, shape, or any other details"
-						required	
-					>
-
+						required />
 				</label>
 
 				<!-- Contact information -->
 
 				<label>
-
 					Contact/reference info
 
 					<div class="lost-item-row">
+						<input type="tel" name="phone" placeholder="(###)###-####" />
 
-						<input
-							type="tel"
-							name="phone"
-							placeholder="(###)###-####"
-						>
-
-						<input
-							type="email"
-							name="email"
-							placeholder="louie@nau.edu"
-						>
-
+						<input type="email" name="email" placeholder="louie@nau.edu" />
 					</div>
-
 				</label>
 
 				<!-- Submit Button -->
 
-				<button type="submit" id="submitButton">
-					Submit
-				</button>
+				<button type="submit" id="submitButton">Submit</button>
 
-				<p id="duplicateItemMessage" class="lost-item-message" role="status"> </p>
-
+				<p
+					id="duplicateItemMessage"
+					class="lost-item-message"
+					role="status"></p>
 			</form>
-
-		</div>
-
-	</main>
-	<script src="/js/navbar.js"></script>
-    <script src="/js/reportPage.js"></script>
-</body>
-
+		</main>
+		<script src="/js/navbar.js"></script>
+		<script src="/js/duplicateCheck.js"></script>
+		<script src="/js/reportPage.js"></script>
+	</body>
 </html>
