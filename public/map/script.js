@@ -15,7 +15,7 @@ map.on('click', (e) => {
 	navigator.clipboard.writeText(`[${e.lngLat.lng},${e.lngLat.lat}]`);
 });
 
-map.on('load', () => {
+map.on('load', async () => {
 	map.setProjection({
 		type: "globe"
 	})
@@ -72,4 +72,14 @@ map.on('load', () => {
 		layout: { visibility: "visible" },
 		paint: { "hillshade-shadow-color": "#473B24" }
 	}, '3d-buildings');
+
+	const mock = await (await fetch("/data/mockData.json")).json();
+
+	mock.desks.forEach(element => {
+		const marker = new maplibregl.Marker();
+		marker.addClassName("marker");
+		marker.setLngLat([element.longitude, element.latitude]);
+		marker.setPopup(new maplibregl.Popup().setText(element.name));
+		marker.addTo(map);
+	});
 });
