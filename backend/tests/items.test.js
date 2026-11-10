@@ -39,12 +39,26 @@ test('GET items', async () => {
 // Test POST valid item
 test('POST valid item', async () => {
 	// arrange
-	const fake = mock.method(db, 'prepare', () => ({
-		get: () => ({}), // category/location lookups find a row
-		run: () => ({ lastInsertRowid: 1 }),
-	}));
-	const server = app.listen(0);
+	const fake = mock.method(db, 'prepare', (sql) => ({
+    get: () => {
+        // Category and location lookups should find a row
+        if (sql.includes('FROM Category') ||
+            sql.includes('FROM Location')) {
+            return {};
+        }
 
+        // Duplicate check should find NO duplicate
+        if (sql.includes('FROM Item')) {
+            return undefined;
+        }
+
+        return undefined;
+    },
+
+    run: () => ({ lastInsertRowid: 1 }),
+}));
+	const server = app.listen(0);
+	
 	try {
 		const url = `http://127.0.0.1:${server.address().port}`;
 		const item = {
@@ -87,6 +101,32 @@ test('POST invalid item', async () => {
 		});
 
 		// assert
+		assert.equal(res.status, 400);
+	} finally {
+		await new Promise((resolve) => server.close(resolve));
+	}
+});
+// Test POST duplicate item
+test('POST duplicate item is rejected', async () => {
+	// arrange
+	const server = app.listen(0);
+	//act 
+	try {
+		const url = `http://127.0.0.1:${server.address().port}`;
+		const res = await fetch(`${url}/api/v1/items`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				type: 'found',
+				name: 'Wallet',
+				categoryId: 'C003',
+				description: 'Black wallet',
+				date: '2026-10-22',
+				locationId: 'LOC001',
+			}),
+		});
+
+		// assert the response for duplicate item
 		assert.equal(res.status, 400);
 	} finally {
 		await new Promise((resolve) => server.close(resolve));

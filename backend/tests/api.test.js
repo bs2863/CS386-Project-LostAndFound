@@ -150,7 +150,6 @@ test('POST item with an unknown category is rejected and not saved', async () =>
 	assert.equal(res.status, 400);
 	assert.deepEqual(search, []);
 });
-
 // Test GET items filtered by contact email (the home inbox)
 test('GET lost items by email returns only that person\'s reports', async () => {
 	// email matching ignores capital letters
@@ -159,4 +158,35 @@ test('GET lost items by email returns only that person\'s reports', async () => 
 
 	assert.deepEqual(namesOf(mine), ['Black Wallet']);
 	assert.deepEqual(nobody, []);
+});
+
+// Test POST duplicate item is rejected
+test('POST duplicate existing item is rejected', async () => {
+    const item = {
+        type: 'lost',
+        name: 'Black Wallet',
+        categoryId: 'C003',
+        description: 'Another black wallet',
+        date: '2026-11-10',
+        locationId: '28',
+    };
+    const res = await fetch(`${url}/items`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item),
+    });
+
+    assert.equal(res.status, 400);
+
+    const count = db.prepare(`
+        SELECT COUNT(*) AS count
+        FROM Item
+        WHERE Name = ?
+        AND CategoryId = ?
+        AND LocationId = ?
+    `).get('Black Wallet', 'C003', '28');
+
+    assert.equal(count.count, 1);
 });
