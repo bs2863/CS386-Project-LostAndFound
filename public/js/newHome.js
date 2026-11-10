@@ -7,13 +7,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 	const closedSummary = document.getElementById('closedSummary');
 	const closedList = document.getElementById('closedReports');
 
-	// Demo login (see login.js) only remembers a role, not who you are.
-	// Until real accounts exist, the "user" role is Louie King from mockData.json,
-	// and his reports are the ones filed with his email.
-	const DEMO_USER_EMAIL = 'lk123@nau.edu';
+	// Demo login (see login.js) remembers the role and the user's email.
+	// "My reports" are the lost reports filed with that email.
 	const role = localStorage.getItem('demoRole');
+	const email = localStorage.getItem('demoEmail');
 
-	if (role !== 'user') {
+	if (role !== 'user' || !email) {
 		message.textContent =
 			role === 'staff'
 				? 'Staff accounts manage items on the Manage Items page.'
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	let reports;
 	try {
 		const response = await fetch(
-			`/api/v1/items?type=lost&email=${encodeURIComponent(DEMO_USER_EMAIL)}`,
+			`/api/v1/items?type=lost&email=${encodeURIComponent(email)}`,
 		);
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}`);
