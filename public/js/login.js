@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 		localStorage.setItem('demoRole', account.role);
-		// remember who logged in, so pages like newHome can show their reports
+		// remember who logged in, so pages like home can show their reports
 		localStorage.setItem('demoEmail', account.email);
 
 		if (account.role === 'staff') {

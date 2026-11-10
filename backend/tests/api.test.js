@@ -151,7 +151,7 @@ test('POST item with an unknown category is rejected and not saved', async () =>
 	assert.deepEqual(search, []);
 });
 
-// Test GET items filtered by contact email (the newHome inbox)
+// Test GET items filtered by contact email (the home inbox)
 test('GET lost items by email returns only that person\'s reports', async () => {
 	// email matching ignores capital letters
 	const mine = await (await fetch(`${url}/items?type=lost&email=LK123@nau.edu`)).json();
