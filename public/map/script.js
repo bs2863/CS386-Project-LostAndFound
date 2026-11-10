@@ -10,6 +10,11 @@ const map = new maplibregl.Map({
 	canvasContextAttributes: { antialias: true },
 });
 
+// Copy coordinates to clipboard on click
+map.on('click', (e) => {
+	navigator.clipboard.writeText(`[${e.lngLat.lng},${e.lngLat.lat}]`);
+});
+
 map.on('load', () => {
 	map.setProjection({
 		type: "globe"
