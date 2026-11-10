@@ -7,7 +7,7 @@ const router = express.Router();
 // get all items from database
 // optional filters: ?type=lost|found  and  ?q=search text
 router.get('/', (req, res) => {
-	const { type, q, locationId } = req.query;
+	const { type, q, locationId, email } = req.query;
 
 	// "AS name" etc. give camelCase JSON, (the same shape as mockData.json)
 	// The JOINs add readable category/location names next to the ids
@@ -36,6 +36,12 @@ router.get('/', (req, res) => {
 	if (typeof locationId === 'string' && locationId.trim()) {
 		conditions.push('i.LocationId = ?');
 		params.push(locationId.trim());
+	}
+
+	if (typeof email === 'string' && email.trim()) {
+		sql += ' JOIN LostReportContact rc ON rc.ItemId = i.Id';
+		conditions.push('LOWER(rc.Email) = LOWER(?)');
+		params.push(email.trim());
 	}
 
 	if (typeof q === 'string' && q.trim()) {
