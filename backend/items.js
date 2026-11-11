@@ -232,4 +232,114 @@ router.post('/', (req, res) => {
 	}
 });
 
+// Update items that already exist in the database (for the staff management page)
+router.put('/:id', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	const {
+		type,
+		name,
+		color,
+		brand,
+		description,
+		status
+	} = req.body || {};
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({
+			error: 'Invalid item ID'
+		});
+	}
+	if (
+		(type !== 'lost' && type !== 'found' ||
+			typeof name !== 'string' ||
+			!name.trim() ||
+			typeof status !== 'string' ||
+			!status.trim()
+		)
+	) {
+		return res.status(400).json({
+			error: 'Invalid or missing item details'
+		});
+	}
+	try {
+		const command = db.prepare(`
+		UPDATE Item
+		SET 
+			Type = ?,
+			Name = ?,
+			Color = ?,
+			Brand = ?,
+			Description = ?,
+			Status = ?
+		WHERE Id = ?
+`);
+
+		const result = command.run(
+			type,
+			name.trim(),
+			color?.trim() || null,
+			brand?.trim() || null,
+			description?.trim() || null,
+			status.trim(),
+			itemId
+
+		);
+
+		if (result.changes === 0) {
+			return res.status(404).json({
+				error: 'Item not found'
+			});
+		}
+
+		return res.status(200).json({
+			message: "Item successfully updated"
+		})
+	} catch (error) {
+		console.error('Failed to update item: ', error);
+
+		return res.status(500).json({
+			error: 'Failed to update item'
+		});
+	}
+});
+
+// Delete an item from the database (Also for the staff management page)
+router.delete('/:id', (req, res) => {
+
+	// get the item id from the url
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({
+			error: 'Invalid item ID'
+		});
+	}
+
+	try {
+		const command = db.prepare(`
+			DELETE FROM Item
+			Where Id = ?	
+		`);
+
+		const result = command.run(itemId);
+
+		if (result.changes === 0) {
+			return res.status(404).json({
+				error: 'Item not found'
+			});
+		}
+
+		return res.status(200).json({
+			message: 'Item successfully deleted'
+		});
+	} catch (error) {
+		console.error('Failed to delete item: ', error);
+
+		return res.status(500).json({
+			error: 'Failed to delete item'
+		});
+	}
+});
+
 module.exports = router;

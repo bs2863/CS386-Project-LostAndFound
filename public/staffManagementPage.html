@@ -17,18 +17,55 @@
 
         <section class="staff-dashboard">
             <h1>Manage Lost & Found Items</h1>
-            <p>View or Manage lost & found items.</p>
+            <p>View or manage lost & found items.</p>
         </section>
 
         <section class="staff-filter">
-            <input type="text" placeholder="Search items...">
+            <input type="text" id="staffSearch" placeholder="Search items...">
 
-            <select>
+            <select id="staffTypeFilter">
                 <option value="">All Items</option>
                 <option value="lost">Lost</option>
                 <option value="found">Found</option>
 
             </select>
+        </section>
+
+        <section class="staff-edit" id="editSection" hidden>
+            <h2>Edit Items</h2>
+
+            <form id="editForm">
+
+                <label for="editName">Item Name</label>
+                <input type="text" id="editName" required>
+
+                <label for="editColor">Color</label>
+                <input type="text" id="editColor">
+
+                <label for="editBrand">Brand</label>
+                <input type="text" id="editBrand">
+
+                <label for="editDescription">Description</label>
+                <textarea id="editDescription"></textarea>
+
+                <label for="editType">Item Type</label>
+                <select id="editType">
+                    <option value="lost">Lost</option>
+                    <option value="found">Found</option>
+                </select>
+
+                <label for="editStatus">Status</label>
+                <select id="editStatus">
+                    <option value="claimed">Claimed</option>
+                    <option value="unclaimed">Unclaimed</option>
+                    <option value="open">Open</option>
+
+                </select>
+
+                <button type="submit">Save Changes</button>
+                <button type="button" id="cancelEdit">Cancel</button>
+
+            </form>
         </section>
 
         <section class="staff-items">
@@ -40,58 +77,13 @@
                         <th>Item</th>
                         <th>Category</th>
                         <th>Location</th>
+                        <th>Type</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>Blue Hoodie</td>
-                    <td>Clothing</td>
-                    <td>Cline Library</td>
-                    <td>Lost</td>
-                    <td>
-                        <button>View</button>
-                        <button>Edit</button>
-                        <button>Remove</button>
-                    </td>
-                  </tr>  
+                <tbody id="staffItemList">
 
-                  <tr>
-                    <td>Bose Headset</td>
-                    <td>Electronics</td>
-                    <td>Dining Hall</td>
-                    <td>Found</td>
-                    <td>
-                        <button>View</button>
-                        <button>Edit</button>
-                        <button>Remove</button>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>Black Wallet</td>
-                    <td>Personal</td>
-                    <td>Adel Mathematics</td>
-                    <td>Lost</td>
-                    <td>
-                        <button>View</button>
-                        <button>Edit</button>
-                        <button>Remove</button>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>Green Hydro Flask</td>
-                    <td>Personal</td>
-                    <td>Health and Learning Center</td>
-                    <td>Found</td>
-                    <td>
-                        <button>View</button>
-                        <button>Edit</button>
-                        <button>Remove</button>
-                    </td>
-                  </tr>
                 </tbody>
             </table>
         </section>
@@ -100,6 +92,7 @@
     </main>
 
     <script src="/js/navbar.js"></script>
+    <script src="/js/staffManagement.js"></script>
 
 </body>
 
