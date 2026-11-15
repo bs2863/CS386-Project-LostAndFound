@@ -1,3 +1,34 @@
+class LostReportForm extends ItemReportForm {
+	buildItem(formData) {
+		return {
+			type: 'lost',
+			name: formData.get('itemName')?.trim(),
+			categoryId: formData.get('category'),
+			date: formData.get('lostDate'),
+			locationId: formData.get('location'),
+			description: formData.get('description')?.trim(),
+			phone: formData.get('phone')?.trim() || null,
+			email: formData.get('email')?.trim() || null,
+			status: 'open',
+		};
+	}
+
+	async beforeSubmit(item) {
+		const duplicates = await checkDuplicates(item);
+
+		if (duplicates.length > 0) {
+			this.showMessage('Possible duplicate item found. Please check.');
+			return false;
+		}
+
+		return true;
+	}
+
+	successMessage(id) {
+		return `Lost item submitted successfully. Item ID: ${id}`;
+	}
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
 	const lostItemForm = document.getElementById('lostItemForm');
 	const duplicateItemMessage = document.getElementById('duplicateItemMessage');
@@ -64,57 +95,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 		console.error('Error loading categories and locations:', error);
 	}
 
+	// an object made from Lost Report Form(class)
+	const report = new LostReportForm(
+		lostItemForm,
+		duplicateItemMessage,
+		submitButton,
+	);
+
+	// Use the template method when the form is submitted
 	lostItemForm.addEventListener('submit', async (e) => {
+		// prevent auto submit
 		e.preventDefault();
-
-		// get values from the form
-		const formData = new FormData(lostItemForm);
-
-		// match the existing backend API structure
-		const lostItem = {
-			type: 'lost',
-			name: formData.get('itemName')?.trim(),
-			categoryId: formData.get('category'),
-			date: formData.get('lostDate'),
-			locationId: formData.get('location'),
-			description: formData.get('description')?.trim(),
-			phone: formData.get('phone')?.trim() || null,
-			email: formData.get('email')?.trim() || null,
-			status: 'open',
-		};
-
-		// send lost item to the backend
-		try {
-			const response = await fetch('/api/v1/items', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(lostItem),
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to submit lost item');
-			}
-
-			const savedItem = await response.json();
-
-			duplicateItemMessage.textContent = `Lost item submitted successfully. Item ID: ${savedItem.id}`;
-
-			lostItemForm.reset();
-		} catch (error) {
-			console.error(error);
-			duplicateItemMessage.textContent =
-				'Failed to submit lost item. Please try again.';
-		}
+		await report.submit();
 	});
-
-	duplicateItemMessage.textContent =
-		'Checking for possible duplication records...';
-
-	//check database for duplicates
-
-	//if lost item is a duplicate, display a message
-
-	//if it is not a duplicate, submit the form
-
-	// send error message if submission fails
 });

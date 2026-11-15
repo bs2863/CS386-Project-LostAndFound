@@ -7,7 +7,7 @@ const router = express.Router();
 // get all items from database
 // optional filters: ?type=lost|found  and  ?q=search text
 router.get('/', (req, res) => {
-	const { type, q, locationId } = req.query;
+	const { type, q, locationId, email } = req.query;
 
 	// "AS name" etc. give camelCase JSON, (the same shape as mockData.json)
 	// The JOINs add readable category/location names next to the ids
@@ -38,6 +38,12 @@ router.get('/', (req, res) => {
 		params.push(locationId.trim());
 	}
 
+	if (typeof email === 'string' && email.trim()) {
+		sql += ' JOIN LostReportContact rc ON rc.ItemId = i.Id';
+		conditions.push('LOWER(rc.Email) = LOWER(?)');
+		params.push(email.trim());
+	}
+
 	if (typeof q === 'string' && q.trim()) {
 		// LIKE is case-insensitive in SQLite; % matches anything around the text
 		conditions.push('(i.Name LIKE ? OR i.Description LIKE ?)');
@@ -59,6 +65,49 @@ router.get('/', (req, res) => {
 			error: 'Failed to get items',
 		});
 	}
+});
+
+// POST /api/v1/items/check-duplicate
+// Check whether an item already exists
+router.post('/check-duplicate', (req, res) => {
+    const { name, categoryId, locationId } = req.body || {};
+
+    // Check required fields
+    if (!name || !categoryId || !locationId) {
+        return res.status(400).json({
+            error: 'Missing required fields'
+        });
+    }
+	// try to check for duplicate item in the database
+    try {
+        const duplicate = db.prepare(`
+            SELECT 1
+            FROM Item
+            WHERE Name = ?
+            AND CategoryId = ?
+            AND LocationId = ?
+            LIMIT 1
+        `).get(name.trim(), categoryId, locationId);
+		// if duplicate exists, return early
+        if (duplicate) {
+            return res.status(200).json({
+                duplicate: true,
+                message: 'A similar item already exists'
+            });
+        }
+        // if no duplicate exists, return no duplicate found
+        return res.status(200).json({
+            duplicate: false,
+            message: 'No duplicate found'
+        });
+
+    } catch (error) {
+        console.error('Duplicate check error:', error);
+
+        return res.status(500).json({
+            error: 'Failed to check duplicates'
+        });
+    }
 });
 
 // POST /api/v1/items
@@ -105,7 +154,23 @@ router.post('/', (req, res) => {
 				error: 'Unknown category or location',
 			});
 		}
-
+		
+		// Check for duplicate item before insertion
+		const duplicate = db.prepare(`
+            SELECT 1
+            FROM Item
+            WHERE Name = ?
+            AND CategoryId = ?
+            AND LocationId = ?
+            LIMIT 1
+        `).get(name.trim(), categoryId, locationId);
+			// if duplicate exists, return early
+		if (duplicate) {
+			return res.status(400).json({
+				error: 'A similar item already exists'
+			});
+		}
+		// if no duplicate exists, proceed with insertion
 		// declare and define SQL for safe insertion to SQLite
 		const command = db.prepare(`
         INSERT INTO Item (
@@ -163,6 +228,116 @@ router.post('/', (req, res) => {
 		console.error('Failed to create an item:', error);
 		return res.status(500).json({
 			error: 'Failed to create an item',
+		});
+	}
+});
+
+// Update items that already exist in the database (for the staff management page)
+router.put('/:id', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	const {
+		type,
+		name,
+		color,
+		brand,
+		description,
+		status
+	} = req.body || {};
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({
+			error: 'Invalid item ID'
+		});
+	}
+	if (
+		(type !== 'lost' && type !== 'found' ||
+			typeof name !== 'string' ||
+			!name.trim() ||
+			typeof status !== 'string' ||
+			!status.trim()
+		)
+	) {
+		return res.status(400).json({
+			error: 'Invalid or missing item details'
+		});
+	}
+	try {
+		const command = db.prepare(`
+		UPDATE Item
+		SET 
+			Type = ?,
+			Name = ?,
+			Color = ?,
+			Brand = ?,
+			Description = ?,
+			Status = ?
+		WHERE Id = ?
+`);
+
+		const result = command.run(
+			type,
+			name.trim(),
+			color?.trim() || null,
+			brand?.trim() || null,
+			description?.trim() || null,
+			status.trim(),
+			itemId
+
+		);
+
+		if (result.changes === 0) {
+			return res.status(404).json({
+				error: 'Item not found'
+			});
+		}
+
+		return res.status(200).json({
+			message: "Item successfully updated"
+		})
+	} catch (error) {
+		console.error('Failed to update item: ', error);
+
+		return res.status(500).json({
+			error: 'Failed to update item'
+		});
+	}
+});
+
+// Delete an item from the database (Also for the staff management page)
+router.delete('/:id', (req, res) => {
+
+	// get the item id from the url
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({
+			error: 'Invalid item ID'
+		});
+	}
+
+	try {
+		const command = db.prepare(`
+			DELETE FROM Item
+			Where Id = ?	
+		`);
+
+		const result = command.run(itemId);
+
+		if (result.changes === 0) {
+			return res.status(404).json({
+				error: 'Item not found'
+			});
+		}
+
+		return res.status(200).json({
+			message: 'Item successfully deleted'
+		});
+	} catch (error) {
+		console.error('Failed to delete item: ', error);
+
+		return res.status(500).json({
+			error: 'Failed to delete item'
 		});
 	}
 });

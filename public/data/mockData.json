@@ -169,5 +169,14 @@
 			"status": "pending",
 			"date": "2026-10-07"
 		}
+	],
+
+	"desks": [
+		{
+			"building": "41",
+			"name": "Honors CLC Lost & Found",
+			"longitude": -111.65666962682592,
+			"latitude": 35.18562026547325
+		}
 	]
 }

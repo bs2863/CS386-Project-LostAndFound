@@ -15,9 +15,15 @@ fetch('/components/navbar.html')
 		const registerFound = document.getElementById('registerFoundLink');
 		const manageItems = document.getElementById('manageItemsLink');
 
-		// navbar will show the role
-		status.textContent =
-			role === 'staff' ? 'Staff' : role === 'user' ? 'User' : 'Guest';
+		// navbar shows the logged in user's ID (or guest if no one is logged in)
+		const email = localStorage.getItem('demoEmail');
+		if (role === 'guest') {
+			status.textContent = 'Guest';
+		} else if (email) {
+			status.textContent = email.split('@')[0];
+		} else {
+			status.textContent = role;
+		}
 
 		// role-based navigation menu handling
 		reportLost.hidden = role !== 'user' && role !== 'staff';

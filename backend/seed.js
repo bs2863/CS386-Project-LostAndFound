@@ -19,8 +19,13 @@ const insert = db.prepare(`
 	)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
 
+const insertContact = db.prepare(`
+	INSERT INTO LostReportContact (ItemId, Email) VALUES (?, ?)`);
+const emailOf = new Map(mockData.users.map((user) => [user.id, user.email]));
+
+// Lost reports also get contact info, so inbox can find them by email
 for (const item of mockData.items) {
-	insert.run(
+	const result = insert.run(
 		item.type,
 		item.name,
 		item.categoryId,
@@ -32,6 +37,10 @@ for (const item of mockData.items) {
 		item.status,
 		item.reportedBy,
 	);
+
+	if (item.type === 'lost' && emailOf.has(item.reportedBy)) {
+		insertContact.run(Number(result.lastInsertRowid), emailOf.get(item.reportedBy));
+	}
 }
 
 console.log(`Seeded ${mockData.items.length} items.`);

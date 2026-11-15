@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>NAU Lost & Found</title>
+		<!-- CSS -->
+		<link rel="stylesheet" href="/css/style.css" />
+	</head>
+	<body>
+		<!-- Shared Navbar for Site Wide -->
+		<div id="navbar"></div>
+		<main class="container find-items-page">
+			<h1>Find Items</h1>
+			<p>Search the items that have been turned in on campus.</p>
+
+			<!-- Search form: sends GET request -->
+			<form id="searchForm">
+				<input
+					type="search"
+					id="itemInput"
+					placeholder="Search found item"
+					aria-label="Search found items" />
+				<button type="submit">Search</button>
+			</form>
+
+			<!-- Dropdown menu to display items by location-->
+			<div class="location-filter">
+				<label for="locationSelect">
+					Do you know where you lost your item? Filter by location
+				</label>
+
+				<select id="locationSelect" aria-label="Filter items by location">
+					<option value="">All Locations</option>
+				</select>
+			</div>
+
+			<!-- How many items matched (or an error message) -->
+			<p id="resultCount" role="status"></p>
+
+			<!-- Found items from the server are listed here -->
+			<ul id="itemList"></ul>
+		</main>
+
+		<!-- JS -->
+		<script src="/js/navbar.js"></script>
+		<script src="/js/oldHome.js"></script>
+	</body>
+</html>

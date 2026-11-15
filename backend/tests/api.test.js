@@ -26,12 +26,18 @@ after(async () => {
 
 // every test starts with the same three items
 beforeEach(() => {
+	db.exec('DELETE FROM LostReportContact');
 	db.exec('DELETE FROM Item');
 	db.exec(`
 		INSERT INTO Item (Type, Name, CategoryId, Description, Date, LocationId, Status) VALUES
 		('lost',  'Black Wallet', 'C003', 'Small black wallet',    '2026-10-02', '28', 'open'),
 		('found', 'Wallet',       'C003', 'Brown leather wallet',  '2026-10-03', '28', 'unclaimed'),
 		('found', 'Headphones',   'C001', 'Black Bose headphones', '2026-10-04', '3', 'unclaimed')
+	`);
+	// the lost Black Wallet was reported by Louie King
+	db.exec(`
+		INSERT INTO LostReportContact (ItemId, Email)
+		SELECT Id, 'lk123@nau.edu' FROM Item WHERE Name = 'Black Wallet'
 	`);
 });
 
@@ -143,4 +149,44 @@ test('POST item with an unknown category is rejected and not saved', async () =>
 
 	assert.equal(res.status, 400);
 	assert.deepEqual(search, []);
+});
+// Test GET items filtered by contact email (the home inbox)
+test('GET lost items by email returns only that person\'s reports', async () => {
+	// email matching ignores capital letters
+	const mine = await (await fetch(`${url}/items?type=lost&email=LK123@nau.edu`)).json();
+	const nobody = await (await fetch(`${url}/items?type=lost&email=nobody@nau.edu`)).json();
+
+	assert.deepEqual(namesOf(mine), ['Black Wallet']);
+	assert.deepEqual(nobody, []);
+});
+
+// Test POST duplicate item is rejected
+test('POST duplicate existing item is rejected', async () => {
+    const item = {
+        type: 'lost',
+        name: 'Black Wallet',
+        categoryId: 'C003',
+        description: 'Another black wallet',
+        date: '2026-11-10',
+        locationId: '28',
+    };
+    const res = await fetch(`${url}/items`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item),
+    });
+
+    assert.equal(res.status, 400);
+
+    const count = db.prepare(`
+        SELECT COUNT(*) AS count
+        FROM Item
+        WHERE Name = ?
+        AND CategoryId = ?
+        AND LocationId = ?
+    `).get('Black Wallet', 'C003', '28');
+
+    assert.equal(count.count, 1);
 });
