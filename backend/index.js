@@ -9,6 +9,9 @@ const express = require('express');
 
 const { runMigrations, query } = require('./db');
 
+//matching functions for lost and found items
+const { groupMatchingItems } = require('./matching');
+
 // initialize database
 runMigrations();
 
@@ -39,6 +42,31 @@ app.use('/api/v1/full-stack-demo/', require('./full-stack-demo/index'));
 // Item API routes
 app.use('/api/v1/items', require('./items'));
 
+//find and group possible matches between items
+app.get('/api/v1/items/matches', (req, res) => {
+
+    //get all items from database
+    const items = query(`
+        SELECT
+            Id AS id,
+            Type AS type,
+            Name AS name,
+            CategoryId AS categoryId,
+            Color AS color,
+            Brand AS brand,
+            Description AS description,
+            Date AS date,
+            LocationId AS locationId,
+            Status AS status
+        FROM Item
+    `);
+
+    //group items that could match
+    const matchingGroups = groupMatchingItems(items);
+
+    //return possible matches
+    return res.status(200).json(matchingGroups);
+});
 // Dropdown options for the report forms
 // ("AS id" / "AS name" so the JSON matches public/data/mockData.json)
 app.get('/api/v1/categories', (req, res) => {
