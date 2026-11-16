@@ -15,7 +15,7 @@ module.exports = [
         Status TEXT NOT NULL,
         ReportedBy TEXT
 	);`,
-        // Dropdown options for the report forms (same ids as public/data/mockData.json)
+	// Dropdown options for the report forms (same ids as public/data/mockData.json)
 	`CREATE TABLE IF NOT EXISTS Category (
         Id TEXT PRIMARY KEY,
         Name TEXT NOT NULL
@@ -35,7 +35,7 @@ module.exports = [
         ('C005', 'Keys'),
         ('C006', 'Other');`,
 
-        // Seed buildings
+	// Seed buildings
 	`INSERT OR IGNORE INTO Location (Id, Name) VALUES
         ('26', 'Adel Mathematics'),
         ('46', 'Allen Hall'),
@@ -166,11 +166,162 @@ module.exports = [
         ('96G', 'SkyView Parking Structure');
         `,
 
-        // Save contact information for lost item reports
-        `CREATE TABLE IF NOT EXISTS LostReportContact (
+	// Save contact information for lost item reports
+	`CREATE TABLE IF NOT EXISTS LostReportContact (
                 ItemId INTEGER PRIMARY KEY,
                 Phone TEXT,
                 Email TEXT,
                 FOREIGN KEY (ItemId) REFERENCES Item(Id)
         );`,
+
+	// create zone table for grouping campus buildings
+	`CREATE TABLE IF NOT EXISTS Zone (
+        Id TEXT PRIMARY KEY,
+        Name TEXT NOT NULL
+        );`,
+
+	// connect existing locations to zones using id
+	`CREATE TABLE IF NOT EXISTS LocationZone (
+        LocationId TEXT PRIMARY KEY,
+        ZoneId TEXT NOT NULL,
+        FOREIGN KEY (LocationId) REFERENCES Location(Id),
+        FOREIGN KEY (ZoneId) REFERENCES Zone(Id)
+        );`,
+
+	// seed the three campus zones
+	`INSERT OR IGNORE INTO Zone (Id, Name) VALUES
+        ('NORTH', 'North Campus'),
+        ('CENTRAL', 'Central Campus'),
+        ('SOUTH', 'South Campus');`,
+
+	// buildings with campus zones
+	`INSERT OR IGNORE INTO LocationZone (LocationId, ZoneId) VALUES
+        -- North Campus
+        ('1', 'NORTH'),
+        ('2', 'NORTH'),
+        ('3', 'NORTH'),
+        ('3A', 'NORTH'),
+        ('4', 'NORTH'),
+        ('5', 'NORTH'),
+        ('6', 'NORTH'),
+        ('7A', 'NORTH'),
+        ('7B', 'NORTH'),
+        ('8', 'NORTH'),
+        ('9', 'NORTH'),
+        ('10', 'NORTH'),
+        ('11', 'NORTH'),
+        ('12', 'NORTH'),
+        ('13', 'NORTH'),
+        ('13A', 'NORTH'),
+        ('14', 'NORTH'),
+        ('15', 'NORTH'),
+        ('16', 'NORTH'),
+        ('16A', 'NORTH'),
+        ('17', 'NORTH'),
+        ('18', 'NORTH'),
+        ('18A', 'NORTH'),
+        ('19', 'NORTH'),
+        ('20', 'NORTH'),
+        ('21', 'NORTH'),
+        ('21B', 'NORTH'),
+        ('22', 'NORTH'),
+        ('23', 'NORTH'),
+        ('23A', 'NORTH'),
+        ('24', 'NORTH'),
+        ('26', 'NORTH'),
+        ('27', 'NORTH'),
+        ('27A', 'NORTH'),
+        ('28', 'NORTH'),
+        ('29', 'NORTH'),
+        ('30', 'NORTH'),
+        ('30A', 'NORTH'),
+        ('30B', 'NORTH'),
+        ('30C', 'NORTH'),
+        ('30D', 'NORTH'),
+        ('31', 'NORTH'),
+        ('35', 'NORTH'),
+        ('36', 'NORTH'),
+        ('37', 'NORTH'),
+        ('37A', 'NORTH'),
+        ('38', 'NORTH'),
+        ('40', 'NORTH'),
+        ('41', 'NORTH'),
+        ('45', 'NORTH'),
+        ('46', 'NORTH'),
+        ('86', 'NORTH'),
+        ('88', 'NORTH'),
+        ('96A', 'NORTH'),
+        ('96B', 'NORTH'),
+
+        -- Central Campus
+        ('25', 'CENTRAL'),
+        ('32', 'CENTRAL'),
+        ('33A', 'CENTRAL'),
+        ('39', 'CENTRAL'),
+        ('42', 'CENTRAL'),
+        ('43', 'CENTRAL'),
+        ('44', 'CENTRAL'),
+        ('47', 'CENTRAL'),
+        ('47A', 'CENTRAL'),
+        ('48', 'CENTRAL'),
+        ('49', 'CENTRAL'),
+        ('50', 'CENTRAL'),
+        ('50A', 'CENTRAL'),
+        ('50B', 'CENTRAL'),
+        ('51', 'CENTRAL'),
+        ('52', 'CENTRAL'),
+        ('53', 'CENTRAL'),
+        ('54', 'CENTRAL'),
+        ('54B', 'CENTRAL'),
+        ('55', 'CENTRAL'),
+        ('56', 'CENTRAL'),
+        ('58', 'CENTRAL'),
+        ('58A', 'CENTRAL'),
+        ('59', 'CENTRAL'),
+        ('60', 'CENTRAL'),
+        ('61', 'CENTRAL'),
+        ('62', 'CENTRAL'),
+        ('87', 'CENTRAL'),
+        ('89', 'CENTRAL'),
+        ('91', 'CENTRAL'),
+        ('92', 'CENTRAL'),
+        ('95', 'CENTRAL'),
+        ('96C', 'CENTRAL'),
+        ('96G', 'CENTRAL'),
+
+        -- South Campus
+        ('64', 'SOUTH'),
+        ('65', 'SOUTH'),
+        ('66', 'SOUTH'),
+        ('67', 'SOUTH'),
+        ('68', 'SOUTH'),
+        ('69', 'SOUTH'),
+        ('70', 'SOUTH'),
+        ('71', 'SOUTH'),
+        ('72', 'SOUTH'),
+        ('73', 'SOUTH'),
+        ('74', 'SOUTH'),
+        ('75', 'SOUTH'),
+        ('76', 'SOUTH'),
+        ('77', 'SOUTH'),
+        ('77A', 'SOUTH'),
+        ('78', 'SOUTH'),
+        ('79', 'SOUTH'),
+        ('80', 'SOUTH'),
+        ('80B', 'SOUTH'),
+        ('81', 'SOUTH'),
+        ('82', 'SOUTH'),
+        ('82B', 'SOUTH'),
+        ('83', 'SOUTH'),
+        ('84', 'SOUTH'),
+        ('85', 'SOUTH'),
+        ('90', 'SOUTH'),
+        ('93', 'SOUTH'),
+        ('96', 'SOUTH'),
+        ('97', 'SOUTH'),
+        ('98A', 'SOUTH'),
+        ('98B', 'SOUTH'),
+        ('98C', 'SOUTH'),
+        ('98D', 'SOUTH'),
+        ('98F', 'SOUTH');`,
 ];
