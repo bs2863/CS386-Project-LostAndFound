@@ -26,6 +26,9 @@ after(async () => {
 
 // every test starts with the same three items
 beforeEach(() => {
+	db.exec('DELETE FROM Claim');
+	db.exec('DELETE FROM LostReportContact');
+	db.exec('DELETE FROM Item');
 	db.exec('DELETE FROM LostReportContact');
 	db.exec('DELETE FROM Item');
 	db.exec(`
@@ -242,4 +245,40 @@ test('GET items shows where a claimed report can be picked up', async () => {
 
 	assert.equal(report.status, 'ready');
 	assert.equal(report.pickupLocationName, 'Cline Library');
+});
+
+// small helpers for the claim tests
+const idOf = (name) => db.prepare('SELECT Id FROM Item WHERE Name = ?').get(name).Id;
+const statusOf = (name) => db.prepare('SELECT Status FROM Item WHERE Name = ?').get(name).Status;
+const claim = (lostId, foundItemId) =>
+	fetch(`${url}/items/${lostId}/claim`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ foundItemId }),
+	});
+
+// Test POST claim
+test('POST claim holds the found item and makes the report ready for pickup', async () => {
+	const res = await claim(idOf('Black Wallet'), idOf('Wallet'));
+
+	assert.equal(res.status, 201);
+	assert.equal(statusOf('Black Wallet'), 'ready');
+	assert.equal(statusOf('Wallet'), 'held');
+	assert.equal(db.prepare('SELECT COUNT(*) AS count FROM Claim').get().count, 1);
+});
+
+test('POST claim for an item that is not a match is rejected', async () => {
+	const res = await claim(idOf('Black Wallet'), idOf('Headphones'));
+
+	assert.equal(res.status, 409);
+	assert.equal(statusOf('Black Wallet'), 'open');
+	assert.equal(statusOf('Headphones'), 'unclaimed');
+});
+
+test('POST claim twice is rejected the second time', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	const res = await claim(idOf('Black Wallet'), idOf('Wallet'));
+
+	assert.equal(res.status, 409);
+	assert.equal(db.prepare('SELECT COUNT(*) AS count FROM Claim').get().count, 1);
 });
