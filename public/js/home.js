@@ -1,4 +1,4 @@
-// New home page: the logged-in user's inbox of lost item reports.
+// home page: the logged-in user's inbox of lost item reports.
 document.addEventListener('DOMContentLoaded', async () => {
 	const message = document.getElementById('inboxMessage');
 	const openSection = document.getElementById('openSection');
@@ -41,9 +41,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 		return;
 	}
 
-	// Open reports go in the main list, finished ones in "Closed reports"
-	const openReports = reports.filter((report) => report.status === 'open');
-	const closedReports = reports.filter((report) => report.status !== 'open');
+	// ("ready" = claimed and waiting to be picked up, so it is still open)
+	const isOpen = (report) => report.status === 'open' || report.status === 'ready';
+	const openReports = reports.filter(isOpen);
+	const closedReports = reports.filter((report) => !isOpen(report));
+
+	// Look up likely matches for each open report
+	await Promise.all(
+		openReports.map(async (report) => {
+			report.matches = await loadMatches(report.id);
+		}),
+	);
 
 	openReports.forEach((report) => openList.appendChild(buildCard(report)));
 	closedReports.forEach((report) => closedList.appendChild(buildCard(report)));
@@ -57,10 +65,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 });
 
+// Likely found items for one report (GET /items/:id/matches).
+// If the request fails the card just stays on "Searching".
+async function loadMatches(reportId) {
+	try {
+		const response = await fetch(`/api/v1/items/${reportId}/matches`);
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status}`);
+		}
+		return await response.json();
+	} catch (error) {
+		console.error('Failed to load matches:', error);
+		return [];
+	}
+}
+
 // How each database status looks on a card.
-// "Matches found" and "Ready for pickup" are added in later PRs.
 const STATUS_DISPLAY = {
 	open: { className: 'status-searching', badge: 'Searching', note: 'No likely matches yet' },
+	ready: { className: 'status-pickup', badge: 'Ready for pickup', note: 'Claimed: bring your ID to pick it up' },
 	resolved: { className: 'status-closed', badge: 'Picked up', note: 'Item returned' },
 	cancelled: { className: 'status-closed', badge: 'Cancelled', note: 'Report cancelled' },
 };
@@ -68,11 +91,26 @@ const STATUS_DISPLAY = {
 // Build one report card (same HTML shape as the PR 1 mockup).
 // textContent is used for anything the user typed, so it can't inject HTML.
 function buildCard(report) {
-	const display = STATUS_DISPLAY[report.status] || {
+	let display = STATUS_DISPLAY[report.status] || {
 		className: 'status-closed',
 		badge: report.status,
 		note: '',
 	};
+
+	// an open report with likely matches is shown as "Matches found"
+	const matches = report.matches || [];
+	if (report.status === 'open' && matches.length > 0) {
+		display = {
+			className: 'status-matches',
+			badge: 'Matches found',
+			note: matches.length === 1 ? '1 likely match' : `${matches.length} likely matches`,
+		};
+	}
+
+	// a claimed report says where the item is being held
+	if (report.status === 'ready' && report.pickupLocationName) {
+		display = { ...display, note: `Claimed: pick up at ${report.pickupLocationName}` };
+	}
 
 	const card = document.createElement('li');
 	card.className = `report-card ${display.className}`;
@@ -102,6 +140,14 @@ function buildCard(report) {
 	if (report.status === 'open') {
 		const actions = document.createElement('div');
 		actions.className = 'report-actions';
+		if (matches.length > 0) {
+			const review = document.createElement('button');
+			review.type = 'button';
+			review.textContent = 'Review matches';
+			review.setAttribute('popovertarget', `matches-${report.id}`);
+			actions.appendChild(review);
+			document.body.appendChild(buildMatchesPanel(report));
+		}
 		const cancel = document.createElement('button');
 		cancel.type = 'button';
 		cancel.className = 'button-secondary';
@@ -112,6 +158,78 @@ function buildCard(report) {
 
 	card.append(info, status);
 	return card;
+}
+
+// Build the "Review matches" panel for one report.
+// Only limited details are shown, so nobody can tailor a false claim.
+function buildMatchesPanel(report) {
+	const panel = document.createElement('div');
+	panel.id = `matches-${report.id}`;
+	panel.className = 'matches-panel';
+	panel.setAttribute('popover', '');
+
+	const title = document.createElement('h2');
+	title.textContent = `Possible matches for: ${report.name}`;
+	const help = document.createElement('p');
+	help.className = 'matches-help';
+	help.textContent =
+		'Pick the item that is yours. It will be held for you, and staff will check your ID when you pick it up.';
+
+	const list = document.createElement('ul');
+	list.className = 'match-list';
+	report.matches.forEach((match) => {
+		const item = document.createElement('li');
+		item.className = 'match-card';
+		const info = document.createElement('div');
+		info.className = 'report-info';
+		const name = document.createElement('h3');
+		name.textContent = match.name;
+		const details = document.createElement('p');
+		details.textContent = [
+			match.categoryName,
+			match.locationName && `Found at ${match.locationName}`,
+			formatDate(match.date),
+		]
+			.filter(Boolean)
+			.join(' · ');
+		info.append(name, details);
+
+		// claiming holds the item; the page reloads to show "Ready for pickup"
+		const claim = document.createElement('button');
+		claim.type = 'button';
+		claim.textContent = 'Claim this item';
+		claim.addEventListener('click', async () => {
+			claim.disabled = true;
+			try {
+				const response = await fetch(`/api/v1/items/${report.id}/claim`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ foundItemId: match.id }),
+				});
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
+				window.location.reload();
+			} catch (error) {
+				console.error('Failed to claim item:', error);
+				help.textContent = 'Could not claim this item. Please reload the page and try again.';
+				claim.disabled = false;
+			}
+		});
+
+		item.append(info, claim);
+		list.appendChild(item);
+	});
+
+	const close = document.createElement('button');
+	close.type = 'button';
+	close.className = 'matches-close';
+	close.textContent = 'None of these are mine';
+	close.setAttribute('popovertarget', panel.id);
+	close.setAttribute('popovertargetaction', 'hide');
+
+	panel.append(title, help, list, close);
+	return panel;
 }
 
 // '2026-10-02' -> 'Oct 2, 2026'

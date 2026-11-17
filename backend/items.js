@@ -1,7 +1,19 @@
 // this file will handle http request for search and/or add items
 const express = require('express');
 const { db } = require('./db');
+const { findPotentialMatch } = require('./matching');
 const router = express.Router();
+
+// (used by the matches and claim routes)
+const MATCH_ITEM_SQL = `
+	SELECT i.Id AS id, i.Type AS type, i.Name AS name,
+	       i.CategoryId AS categoryId, c.Name AS categoryName,
+	       i.Color AS color, i.Brand AS brand, i.Description AS description,
+	       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
+	       i.Status AS status
+	FROM Item i
+	LEFT JOIN Category c ON c.Id = i.CategoryId
+	LEFT JOIN Location l ON l.Id = i.LocationId`;
 
 // GET /api/v1/items
 // get all items from database
@@ -10,16 +22,22 @@ router.get('/', (req, res) => {
 	const { type, q, locationId, email } = req.query;
 
 	// "AS name" etc. give camelCase JSON, (the same shape as mockData.json)
-	// The JOINs add readable category/location names next to the ids
+	// The JOINs add readable category/location names next to the ids.
+	// A claimed lost report also gets pickupLocationName: the building
+	// where its found item is being held (null for everything else)
 	let sql = `
 		SELECT i.Id AS id, i.Type AS type, i.Name AS name,
 		       i.CategoryId AS categoryId, c.Name AS categoryName,
 		       i.Color AS color, i.Brand AS brand, i.Description AS description,
 		       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
-		       i.Status AS status, i.ReportedBy AS reportedBy
+		       i.Status AS status, i.ReportedBy AS reportedBy,
+		       pl.Name AS pickupLocationName
 		FROM Item i
 		LEFT JOIN Category c ON c.Id = i.CategoryId
-		LEFT JOIN Location l ON l.Id = i.LocationId`;
+		LEFT JOIN Location l ON l.Id = i.LocationId
+		LEFT JOIN Claim cl ON cl.LostItemId = i.Id
+		LEFT JOIN Item f ON f.Id = cl.FoundItemId
+		LEFT JOIN Location pl ON pl.Id = f.LocationId`;
 
 	// build the WHERE clause from whichever filters were sent
 	const conditions = [];
@@ -64,6 +82,99 @@ router.get('/', (req, res) => {
 		return res.status(500).json({
 			error: 'Failed to get items',
 		});
+	}
+});
+
+// GET /api/v1/items/:id/matches
+// likely found items for one lost report, best match first
+// Only limited details are returned (no description, color or brand)
+router.get('/:id/matches', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	try {
+		const lostItem = db.prepare(`${MATCH_ITEM_SQL} WHERE i.Id = ?`).get(itemId);
+		if (!lostItem || lostItem.type !== 'lost') {
+			return res.status(404).json({ error: 'Lost report not found' });
+		}
+
+		const foundItems = db.prepare(`${MATCH_ITEM_SQL} WHERE i.Type = 'found'`).all();
+
+		// findPotentialMatch returns null unless the pair scores at least 50
+		const matches = foundItems
+			.map((foundItem) => findPotentialMatch(lostItem, foundItem))
+			.filter((match) => match !== null)
+			.sort((a, b) => b.score - a.score)
+			.map((match) => ({
+				id: match.foundItem.id,
+				name: match.foundItem.name,
+				categoryName: match.foundItem.categoryName,
+				locationName: match.foundItem.locationName,
+				date: match.foundItem.date,
+			}));
+
+		return res.status(200).json(matches);
+	} catch (error) {
+		console.error('Failed to get matches:', error);
+		return res.status(500).json({ error: 'Failed to get matches' });
+	}
+});
+
+// POST /api/v1/items/:id/claim   body: { foundItemId }
+// The owner of a lost report claims one of its matches.
+// The found item is held for them and the report becomes ready for pickup.
+router.post('/:id/claim', (req, res) => {
+	const lostItemId = Number(req.params.id);
+	const foundItemId = Number((req.body || {}).foundItemId);
+
+	if (!Number.isInteger(lostItemId) || !Number.isInteger(foundItemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	try {
+		const getItem = db.prepare(`${MATCH_ITEM_SQL} WHERE i.Id = ?`);
+		const lostItem = getItem.get(lostItemId);
+		const foundItem = getItem.get(foundItemId);
+
+		if (!lostItem || lostItem.type !== 'lost') {
+			return res.status(404).json({ error: 'Lost report not found' });
+		}
+		if (!foundItem || foundItem.type !== 'found') {
+			return res.status(404).json({ error: 'Found item not found' });
+		}
+
+		// only a real match can be claimed: this is null when the report is
+		// not open, the item is already held or claimed, or the score is too low
+		if (findPotentialMatch(lostItem, foundItem) === null) {
+			return res.status(409).json({ error: 'This item cannot be claimed for this report' });
+		}
+
+		// save the claim and both new statuses together
+		let result;
+		try {
+			db.exec('BEGIN');
+			result = db
+				.prepare('INSERT INTO Claim (LostItemId, FoundItemId) VALUES (?, ?)')
+				.run(lostItemId, foundItemId);
+			const setStatus = db.prepare('UPDATE Item SET Status = ? WHERE Id = ?');
+			setStatus.run('ready', lostItemId);
+			setStatus.run('held', foundItemId);
+			db.exec('COMMIT');
+		} catch (error) {
+			db.exec('ROLLBACK');
+			throw error;
+		}
+
+		return res.status(201).json({
+			id: Number(result.lastInsertRowid),
+			message: 'Item claimed',
+		});
+	} catch (error) {
+		console.error('Failed to claim item:', error);
+		return res.status(500).json({ error: 'Failed to claim item' });
 	}
 });
 
