@@ -1,4 +1,4 @@
-// New home page: the logged-in user's inbox of lost item reports.
+// home page: the logged-in user's inbox of lost item reports.
 document.addEventListener('DOMContentLoaded', async () => {
 	const message = document.getElementById('inboxMessage');
 	const openSection = document.getElementById('openSection');
@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 	const openReports = reports.filter((report) => report.status === 'open');
 	const closedReports = reports.filter((report) => report.status !== 'open');
 
+	// Look up likely matches for each open report
+	await Promise.all(
+		openReports.map(async (report) => {
+			report.matches = await loadMatches(report.id);
+		}),
+	);
+
 	openReports.forEach((report) => openList.appendChild(buildCard(report)));
 	closedReports.forEach((report) => closedList.appendChild(buildCard(report)));
 
@@ -57,8 +64,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 });
 
+// Likely found items for one report (GET /items/:id/matches).
+// If the request fails the card just stays on "Searching".
+async function loadMatches(reportId) {
+	try {
+		const response = await fetch(`/api/v1/items/${reportId}/matches`);
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status}`);
+		}
+		return await response.json();
+	} catch (error) {
+		console.error('Failed to load matches:', error);
+		return [];
+	}
+}
+
 // How each database status looks on a card.
-// "Matches found" and "Ready for pickup" are added in later PRs.
 const STATUS_DISPLAY = {
 	open: { className: 'status-searching', badge: 'Searching', note: 'No likely matches yet' },
 	resolved: { className: 'status-closed', badge: 'Picked up', note: 'Item returned' },
@@ -68,11 +89,21 @@ const STATUS_DISPLAY = {
 // Build one report card (same HTML shape as the PR 1 mockup).
 // textContent is used for anything the user typed, so it can't inject HTML.
 function buildCard(report) {
-	const display = STATUS_DISPLAY[report.status] || {
+	let display = STATUS_DISPLAY[report.status] || {
 		className: 'status-closed',
 		badge: report.status,
 		note: '',
 	};
+
+	// an open report with likely matches is shown as "Matches found"
+	const matches = report.matches || [];
+	if (report.status === 'open' && matches.length > 0) {
+		display = {
+			className: 'status-matches',
+			badge: 'Matches found',
+			note: matches.length === 1 ? '1 likely match' : `${matches.length} likely matches`,
+		};
+	}
 
 	const card = document.createElement('li');
 	card.className = `report-card ${display.className}`;
@@ -102,6 +133,13 @@ function buildCard(report) {
 	if (report.status === 'open') {
 		const actions = document.createElement('div');
 		actions.className = 'report-actions';
+		if (matches.length > 0) {
+			const review = document.createElement('button');
+			review.type = 'button';
+			review.textContent = 'Review matches';
+			actions.appendChild(review);
+		}
+
 		const cancel = document.createElement('button');
 		cancel.type = 'button';
 		cancel.className = 'button-secondary';
