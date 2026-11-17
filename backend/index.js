@@ -82,6 +82,16 @@ app.get('/api/v1/locations', (req, res) => {
 		);
 });
 
+app.get('/api/v1/desks', (req, res) => {
+	return res
+		.status(200)
+		.json(
+			query(
+				'SELECT LocationId AS building, Name as name, Latitude as latitude, Longitude as longitude FROM LostAndFoundDesk;'
+			)
+		);
+})
+
 /**
  * GET /api/v1/zones
  * return all campus zones.

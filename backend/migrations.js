@@ -335,4 +335,17 @@ module.exports = [
         FOREIGN KEY (LostItemId) REFERENCES Item(Id),
         FOREIGN KEY (FoundItemId) REFERENCES Item(Id)
         );`,
+
+        `CREATE TABLE IF NOT EXISTS LostAndFoundDesk (
+                LocationId TEXT NOT NULL PRIMARY KEY,
+                Name TEXT NOT NULL,
+                Latitude REAL NOT NULL,
+                Longitude REAL NOT NULL,
+
+                FOREIGN KEY (LocationId) REFERENCES Location (Id)
+        );`,
+
+        `INSERT OR IGNORE INTO LostAndFoundDesk (LocationId, Name, Latitude, Longitude) VALUES
+                ('41', 'Honors CLC Lost & Found', 35.18562026547325, -111.65666962682592);
+        `,
 ];
