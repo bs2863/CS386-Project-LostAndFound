@@ -173,7 +173,6 @@ function buildMatchesPanel(report) {
 	report.matches.forEach((match) => {
 		const item = document.createElement('li');
 		item.className = 'match-card';
-
 		const info = document.createElement('div');
 		info.className = 'report-info';
 		const name = document.createElement('h3');

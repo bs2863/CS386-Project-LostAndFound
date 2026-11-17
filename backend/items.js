@@ -4,6 +4,17 @@ const { db } = require('./db');
 const { findPotentialMatch } = require('./matching');
 const router = express.Router();
 
+// (used by the matches and claim routes)
+const MATCH_ITEM_SQL = `
+	SELECT i.Id AS id, i.Type AS type, i.Name AS name,
+	       i.CategoryId AS categoryId, c.Name AS categoryName,
+	       i.Color AS color, i.Brand AS brand, i.Description AS description,
+	       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
+	       i.Status AS status
+	FROM Item i
+	LEFT JOIN Category c ON c.Id = i.CategoryId
+	LEFT JOIN Location l ON l.Id = i.LocationId`;
+
 // GET /api/v1/items
 // get all items from database
 // optional filters: ?type=lost|found  and  ?q=search text
@@ -89,12 +100,12 @@ router.get('/:id/matches', (req, res) => {
 		LEFT JOIN Location l ON l.Id = i.LocationId`;
 
 	try {
-		const lostItem = db.prepare(`${sql} WHERE i.Id = ?`).get(itemId);
+		const lostItem = db.prepare(`${MATCH_ITEM_SQL} WHERE i.Id = ?`).get(itemId);
 		if (!lostItem || lostItem.type !== 'lost') {
 			return res.status(404).json({ error: 'Lost report not found' });
 		}
 
-		const foundItems = db.prepare(`${sql} WHERE i.Type = 'found'`).all();
+		const foundItems = db.prepare(`${MATCH_ITEM_SQL} WHERE i.Type = 'found'`).all();
 
 		// findPotentialMatch returns null unless the pair scores at least 50
 		const matches = foundItems
@@ -113,6 +124,61 @@ router.get('/:id/matches', (req, res) => {
 	} catch (error) {
 		console.error('Failed to get matches:', error);
 		return res.status(500).json({ error: 'Failed to get matches' });
+	}
+});
+
+// POST /api/v1/items/:id/claim   body: { foundItemId }
+// The owner of a lost report claims one of its matches.
+// The found item is held for them and the report becomes ready for pickup.
+router.post('/:id/claim', (req, res) => {
+	const lostItemId = Number(req.params.id);
+	const foundItemId = Number((req.body || {}).foundItemId);
+
+	if (!Number.isInteger(lostItemId) || !Number.isInteger(foundItemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	try {
+		const getItem = db.prepare(`${MATCH_ITEM_SQL} WHERE i.Id = ?`);
+		const lostItem = getItem.get(lostItemId);
+		const foundItem = getItem.get(foundItemId);
+
+		if (!lostItem || lostItem.type !== 'lost') {
+			return res.status(404).json({ error: 'Lost report not found' });
+		}
+		if (!foundItem || foundItem.type !== 'found') {
+			return res.status(404).json({ error: 'Found item not found' });
+		}
+
+		// only a real match can be claimed: this is null when the report is
+		// not open, the item is already held or claimed, or the score is too low
+		if (findPotentialMatch(lostItem, foundItem) === null) {
+			return res.status(409).json({ error: 'This item cannot be claimed for this report' });
+		}
+
+		// save the claim and both new statuses together
+		let result;
+		try {
+			db.exec('BEGIN');
+			result = db
+				.prepare('INSERT INTO Claim (LostItemId, FoundItemId) VALUES (?, ?)')
+				.run(lostItemId, foundItemId);
+			const setStatus = db.prepare('UPDATE Item SET Status = ? WHERE Id = ?');
+			setStatus.run('ready', lostItemId);
+			setStatus.run('held', foundItemId);
+			db.exec('COMMIT');
+		} catch (error) {
+			db.exec('ROLLBACK');
+			throw error;
+		}
+
+		return res.status(201).json({
+			id: Number(result.lastInsertRowid),
+			message: 'Item claimed',
+		});
+	} catch (error) {
+		console.error('Failed to claim item:', error);
+		return res.status(500).json({ error: 'Failed to claim item' });
 	}
 });
 

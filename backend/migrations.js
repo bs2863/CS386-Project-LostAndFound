@@ -324,4 +324,15 @@ module.exports = [
         ('98C', 'SOUTH'),
         ('98D', 'SOUTH'),
         ('98F', 'SOUTH');`,
+
+        // A claim holds one found item for the owner of one lost report
+	// (UNIQUE: a report has at most one claim, and an item is held for one report)
+	`CREATE TABLE IF NOT EXISTS Claim (
+        Id INTEGER PRIMARY KEY,
+        LostItemId INTEGER NOT NULL UNIQUE,
+        FoundItemId INTEGER NOT NULL UNIQUE,
+        CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (LostItemId) REFERENCES Item(Id),
+        FOREIGN KEY (FoundItemId) REFERENCES Item(Id)
+        );`,
 ];
