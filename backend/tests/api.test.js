@@ -190,3 +190,46 @@ test('POST duplicate existing item is rejected', async () => {
 
     assert.equal(count.count, 1);
 });
+
+// Test GET matches for one lost report
+test('GET matches returns likely found items with limited details', async () => {
+	const lost = db.prepare("SELECT Id FROM Item WHERE Name = 'Black Wallet'").get();
+
+	const res = await fetch(`${url}/items/${lost.Id}/matches`);
+	const matches = await res.json();
+
+	assert.equal(res.status, 200);
+	// the found Wallet matches (same category, building and week); Headphones don't
+	assert.equal(matches.length, 1);
+	assert.equal(matches[0].name, 'Wallet');
+	assert.equal(matches[0].locationName, 'Cline Library');
+	// details that could help someone fake a claim are left out
+	assert.equal(matches[0].description, undefined);
+});
+
+test('GET matches puts the best match first', async () => {
+	// a second found wallet whose color also matches the report
+	db.exec("UPDATE Item SET Color = 'Black' WHERE Name = 'Black Wallet'");
+	db.exec(`
+		INSERT INTO Item (Type, Name, CategoryId, Color, Description, Date, LocationId, Status) VALUES
+		('found', 'Wallet', 'C003', 'Black', 'Black wallet with cards', '2026-10-05', '3', 'unclaimed')
+	`);
+	const lost = db.prepare("SELECT Id FROM Item WHERE Name = 'Black Wallet'").get();
+
+	const res = await fetch(`${url}/items/${lost.Id}/matches`);
+	const matches = await res.json();
+
+	assert.equal(matches.length, 2);
+	assert.equal(matches[0].locationName, 'Cline Library');
+	assert.equal(matches[1].locationName, 'North Union');
+});
+
+test('GET matches for a found item or unknown id is rejected', async () => {
+	const found = db.prepare("SELECT Id FROM Item WHERE Name = 'Headphones'").get();
+
+	const foundRes = await fetch(`${url}/items/${found.Id}/matches`);
+	const missingRes = await fetch(`${url}/items/999999/matches`);
+
+	assert.equal(foundRes.status, 404);
+	assert.equal(missingRes.status, 404);
+});

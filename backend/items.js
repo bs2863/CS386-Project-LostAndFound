@@ -1,6 +1,7 @@
 // this file will handle http request for search and/or add items
 const express = require('express');
 const { db } = require('./db');
+const { findPotentialMatch } = require('./matching');
 const router = express.Router();
 
 // GET /api/v1/items
@@ -64,6 +65,54 @@ router.get('/', (req, res) => {
 		return res.status(500).json({
 			error: 'Failed to get items',
 		});
+	}
+});
+
+// GET /api/v1/items/:id/matches
+// likely found items for one lost report, best match first
+// Only limited details are returned (no description, color or brand)
+router.get('/:id/matches', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	const sql = `
+		SELECT i.Id AS id, i.Type AS type, i.Name AS name,
+		       i.CategoryId AS categoryId, c.Name AS categoryName,
+		       i.Color AS color, i.Brand AS brand, i.Description AS description,
+		       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
+		       i.Status AS status
+		FROM Item i
+		LEFT JOIN Category c ON c.Id = i.CategoryId
+		LEFT JOIN Location l ON l.Id = i.LocationId`;
+
+	try {
+		const lostItem = db.prepare(`${sql} WHERE i.Id = ?`).get(itemId);
+		if (!lostItem || lostItem.type !== 'lost') {
+			return res.status(404).json({ error: 'Lost report not found' });
+		}
+
+		const foundItems = db.prepare(`${sql} WHERE i.Type = 'found'`).all();
+
+		// findPotentialMatch returns null unless the pair scores at least 50
+		const matches = foundItems
+			.map((foundItem) => findPotentialMatch(lostItem, foundItem))
+			.filter((match) => match !== null)
+			.sort((a, b) => b.score - a.score)
+			.map((match) => ({
+				id: match.foundItem.id,
+				name: match.foundItem.name,
+				categoryName: match.foundItem.categoryName,
+				locationName: match.foundItem.locationName,
+				date: match.foundItem.date,
+			}));
+
+		return res.status(200).json(matches);
+	} catch (error) {
+		console.error('Failed to get matches:', error);
+		return res.status(500).json({ error: 'Failed to get matches' });
 	}
 });
 
