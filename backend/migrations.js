@@ -15,6 +15,14 @@ module.exports = [
         Status TEXT NOT NULL,
         ReportedBy TEXT
 	);`,
+
+        `CREATE TABLE IF NOT EXISTS Image (
+        Id INTEGER PRIMARY KEY,
+        ItemId INTEGER,
+        Base64Data TEXT NOT NULL,
+        FOREIGN KEY (ItemId) REFERENCES Item(Id)
+        )`,
+
         // Dropdown options for the report forms (same ids as public/data/mockData.json)
 	`CREATE TABLE IF NOT EXISTS Category (
         Id TEXT PRIMARY KEY,
