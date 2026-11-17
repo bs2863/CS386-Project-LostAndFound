@@ -233,3 +233,13 @@ test('GET matches for a found item or unknown id is rejected', async () => {
 	assert.equal(foundRes.status, 404);
 	assert.equal(missingRes.status, 404);
 });
+
+test('GET items shows where a claimed report can be picked up', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+
+	const res = await fetch(`${url}/items?type=lost`);
+	const [report] = await res.json();
+
+	assert.equal(report.status, 'ready');
+	assert.equal(report.pickupLocationName, 'Cline Library');
+});

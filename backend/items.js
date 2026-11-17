@@ -22,16 +22,22 @@ router.get('/', (req, res) => {
 	const { type, q, locationId, email } = req.query;
 
 	// "AS name" etc. give camelCase JSON, (the same shape as mockData.json)
-	// The JOINs add readable category/location names next to the ids
+	// The JOINs add readable category/location names next to the ids.
+	// A claimed lost report also gets pickupLocationName: the building
+	// where its found item is being held (null for everything else)
 	let sql = `
 		SELECT i.Id AS id, i.Type AS type, i.Name AS name,
 		       i.CategoryId AS categoryId, c.Name AS categoryName,
 		       i.Color AS color, i.Brand AS brand, i.Description AS description,
 		       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
-		       i.Status AS status, i.ReportedBy AS reportedBy
+		       i.Status AS status, i.ReportedBy AS reportedBy,
+		       pl.Name AS pickupLocationName
 		FROM Item i
 		LEFT JOIN Category c ON c.Id = i.CategoryId
-		LEFT JOIN Location l ON l.Id = i.LocationId`;
+		LEFT JOIN Location l ON l.Id = i.LocationId
+		LEFT JOIN Claim cl ON cl.LostItemId = i.Id
+		LEFT JOIN Item f ON f.Id = cl.FoundItemId
+		LEFT JOIN Location pl ON pl.Id = f.LocationId`;
 
 	// build the WHERE clause from whichever filters were sent
 	const conditions = [];
@@ -88,16 +94,6 @@ router.get('/:id/matches', (req, res) => {
 	if (!Number.isInteger(itemId)) {
 		return res.status(400).json({ error: 'Invalid item ID' });
 	}
-
-	const sql = `
-		SELECT i.Id AS id, i.Type AS type, i.Name AS name,
-		       i.CategoryId AS categoryId, c.Name AS categoryName,
-		       i.Color AS color, i.Brand AS brand, i.Description AS description,
-		       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
-		       i.Status AS status
-		FROM Item i
-		LEFT JOIN Category c ON c.Id = i.CategoryId
-		LEFT JOIN Location l ON l.Id = i.LocationId`;
 
 	try {
 		const lostItem = db.prepare(`${MATCH_ITEM_SQL} WHERE i.Id = ?`).get(itemId);

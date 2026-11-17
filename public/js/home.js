@@ -41,9 +41,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 		return;
 	}
 
-	// Open reports go in the main list, finished ones in "Closed reports"
-	const openReports = reports.filter((report) => report.status === 'open');
-	const closedReports = reports.filter((report) => report.status !== 'open');
+	// ("ready" = claimed and waiting to be picked up, so it is still open)
+	const isOpen = (report) => report.status === 'open' || report.status === 'ready';
+	const openReports = reports.filter(isOpen);
+	const closedReports = reports.filter((report) => !isOpen(report));
 
 	// Look up likely matches for each open report
 	await Promise.all(
@@ -82,6 +83,7 @@ async function loadMatches(reportId) {
 // How each database status looks on a card.
 const STATUS_DISPLAY = {
 	open: { className: 'status-searching', badge: 'Searching', note: 'No likely matches yet' },
+	ready: { className: 'status-pickup', badge: 'Ready for pickup', note: 'Claimed: bring your ID to pick it up' },
 	resolved: { className: 'status-closed', badge: 'Picked up', note: 'Item returned' },
 	cancelled: { className: 'status-closed', badge: 'Cancelled', note: 'Report cancelled' },
 };
@@ -103,6 +105,11 @@ function buildCard(report) {
 			badge: 'Matches found',
 			note: matches.length === 1 ? '1 likely match' : `${matches.length} likely matches`,
 		};
+	}
+
+	// a claimed report says where the item is being held
+	if (report.status === 'ready' && report.pickupLocationName) {
+		display = { ...display, note: `Claimed: pick up at ${report.pickupLocationName}` };
 	}
 
 	const card = document.createElement('li');
@@ -187,10 +194,28 @@ function buildMatchesPanel(report) {
 			.join(' · ');
 		info.append(name, details);
 
-		// the button is connected in a later PR (claiming)
+		// claiming holds the item; the page reloads to show "Ready for pickup"
 		const claim = document.createElement('button');
 		claim.type = 'button';
 		claim.textContent = 'Claim this item';
+		claim.addEventListener('click', async () => {
+			claim.disabled = true;
+			try {
+				const response = await fetch(`/api/v1/items/${report.id}/claim`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ foundItemId: match.id }),
+				});
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
+				window.location.reload();
+			} catch (error) {
+				console.error('Failed to claim item:', error);
+				help.textContent = 'Could not claim this item. Please reload the page and try again.';
+				claim.disabled = false;
+			}
+		});
 
 		item.append(info, claim);
 		list.appendChild(item);
