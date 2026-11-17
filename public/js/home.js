@@ -137,9 +137,10 @@ function buildCard(report) {
 			const review = document.createElement('button');
 			review.type = 'button';
 			review.textContent = 'Review matches';
+			review.setAttribute('popovertarget', `matches-${report.id}`);
 			actions.appendChild(review);
+			document.body.appendChild(buildMatchesPanel(report));
 		}
-
 		const cancel = document.createElement('button');
 		cancel.type = 'button';
 		cancel.className = 'button-secondary';
@@ -150,6 +151,61 @@ function buildCard(report) {
 
 	card.append(info, status);
 	return card;
+}
+
+// Build the "Review matches" panel for one report.
+// Only limited details are shown, so nobody can tailor a false claim.
+function buildMatchesPanel(report) {
+	const panel = document.createElement('div');
+	panel.id = `matches-${report.id}`;
+	panel.className = 'matches-panel';
+	panel.setAttribute('popover', '');
+
+	const title = document.createElement('h2');
+	title.textContent = `Possible matches for: ${report.name}`;
+	const help = document.createElement('p');
+	help.className = 'matches-help';
+	help.textContent =
+		'Pick the item that is yours. It will be held for you, and staff will check your ID when you pick it up.';
+
+	const list = document.createElement('ul');
+	list.className = 'match-list';
+	report.matches.forEach((match) => {
+		const item = document.createElement('li');
+		item.className = 'match-card';
+
+		const info = document.createElement('div');
+		info.className = 'report-info';
+		const name = document.createElement('h3');
+		name.textContent = match.name;
+		const details = document.createElement('p');
+		details.textContent = [
+			match.categoryName,
+			match.locationName && `Found at ${match.locationName}`,
+			formatDate(match.date),
+		]
+			.filter(Boolean)
+			.join(' · ');
+		info.append(name, details);
+
+		// the button is connected in a later PR (claiming)
+		const claim = document.createElement('button');
+		claim.type = 'button';
+		claim.textContent = 'Claim this item';
+
+		item.append(info, claim);
+		list.appendChild(item);
+	});
+
+	const close = document.createElement('button');
+	close.type = 'button';
+	close.className = 'matches-close';
+	close.textContent = 'None of these are mine';
+	close.setAttribute('popovertarget', panel.id);
+	close.setAttribute('popovertargetaction', 'hide');
+
+	panel.append(title, help, list, close);
+	return panel;
 }
 
 // '2026-10-02' -> 'Oct 2, 2026'
