@@ -7,8 +7,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editSection = document.getElementById('editSection');
     const cancelButton = document.getElementById('cancelEdit');
     const editForm = document.getElementById('editForm');
+    const editType = document.getElementById('editType');
+    const editStatus = document.getElementById('editStatus');
 
-    // temp id when editing an item
+    // Statuses for each item type
+    const statusByType = {
+        lost: ['open', 'ready', 'resolved', 'cancelled'],
+        found: ['unclaimed', 'held', 'resolved', 'cancelled']
+    };
+
+    // Populate the status dropdown based on type (lost or found) of the item
+    function statusOptions(type, currentStatus = '') {
+        const statuses = [...statusByType[type]];
+
+        // Display current status before touching the drop down menu
+        if (currentStatus && !statuses.includes(currentStatus)) {
+            statuses.unshift(currentStatus);
+        }
+
+        editStatus.replaceChildren();
+
+        statuses.forEach(status => {
+            const option = document.createElement('option');
+
+            option.value = status;
+            option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+
+            editStatus.appendChild(option);
+        });
+
+    }
+
+    // Temporary id when editing an item
     let editingItemId = null;
 
     cancelButton.addEventListener('click', () => {
@@ -121,16 +151,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // id number of the item we are editing
                 editingItemId = item.id;
 
-                const editSection = document.getElementById('editSection');
-
                 editSection.hidden = false;
 
                 document.getElementById('editName').value = item.name;
                 document.getElementById('editColor').value = item.color || '';
                 document.getElementById('editBrand').value = item.brand || '';
                 document.getElementById('editDescription').value = item.description || '';
-                document.getElementById('editType').value = item.type;
-                document.getElementById('editStatus').value = item.status || '';
+                editType.value = item.type;
+                statusOptions(item.type, item.status);
 
             });
 
