@@ -353,6 +353,62 @@ label {
 	background-color: var(--nau-blue);
 	color: white;
 }
+/* =========================
+	STAFF EDIT BOX
+========================= */
+.staff-edit {
+	position: fixed;
+	top: 16px;
+	right: 24px;
+
+	box-sizing: border-box;
+	padding: 22px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-top: 5px solid var(--nau-gold);
+	border-radius: 10px;
+}
+
+.staff-edit[hidden] {
+	display: none;
+}
+/* Heading */
+.staff-edit h2 {
+	margin: 0 0 20px;
+	color: var(--nau-blue);
+}
+
+#editForm {
+	display: grid;
+	gap: 10px;
+}
+
+#editForm label {
+	display: grid;
+	gap: 6px;
+}
+
+#editForm input,
+#editForm select,
+#editForm textarea {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 10px;
+	border: 1px solid black;
+	border-radius: 4px;
+	font: inherit;
+}
+
+#editForm textarea {
+	min-height: 100px;
+	resize: vertical;
+}
+
+#editForm button {
+	width: 100%;
+	padding: 10px;
+	cursor: pointer;
+}
 
 /* =========================
 	LOGIN PAGE
