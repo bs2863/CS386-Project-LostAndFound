@@ -73,9 +73,9 @@ map.on('load', async () => {
 		paint: { "hillshade-shadow-color": "#473B24" }
 	}, '3d-buildings');
 
-	const mock = await (await fetch("/data/mockData.json")).json();
+	const desks = await (await fetch("/api/v1/desks")).json();
 
-	mock.desks.forEach(element => {
+	desks.forEach(element => {
 		const marker = new maplibregl.Marker();
 		marker.addClassName("marker");
 		marker.setLngLat([element.longitude, element.latitude]);
