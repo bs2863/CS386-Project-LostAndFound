@@ -4,11 +4,12 @@ class LostReportForm extends ItemReportForm {
 			type: 'lost',
 			name: formData.get('itemName')?.trim(),
 			categoryId: formData.get('category'),
+			color: formData.get('color')?.trim() || null,
+			brand: formData.get('brand')?.trim() || null,
 			date: formData.get('lostDate'),
 			locationId: formData.get('location'),
 			description: formData.get('description')?.trim(),
 			phone: formData.get('phone')?.trim() || null,
-			email: formData.get('email')?.trim() || null,
 			status: 'open',
 		};
 	}
@@ -39,25 +40,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 	const categorySelect = lostItemForm.querySelector('select[name="category"]');
 	// add location dropdown from the reportItem HTML page
 	const locationSelect = lostItemForm.querySelector('select[name="location"]');
+	const zoneSelect = document.getElementById('zoneId');
 
+	// dropdown selector by zone
+	const buildingSelector = new ZoneBuildingSelector(zoneSelect, locationSelect);
 	//load categories from database through the API
 	try {
 		//request category information from the backend
 		const categoriesRes = await fetch('/api/v1/categories');
-		//request location information from the backend
-		const locationsRes = await fetch('/api/v1/locations');
+
 		//check whether if successful
 		if (!categoriesRes.ok) {
 			throw new Error('Failed to load categories');
 		}
-		if (!locationsRes.ok) {
-			throw new Error('Failed to load locations');
-		}
 
 		//convert the response into js data
 		const categories = await categoriesRes.json();
-		//convert the response into js dataa
-		const locations = await locationsRes.json();
 
 		//add each category from database into dropdown
 		categories.forEach((category) => {
@@ -75,25 +73,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 		});
 
 		//add each location from database into dropdown
-		locations.forEach((location) => {
-			//create a new dropdown option
-			const option = document.createElement('option');
-
-			//use the location database ID as option value
-			option.value = location.id;
-
-			//display location name to user
-			option.textContent = location.name;
-
-			//add the new option to the location dropdown
-			locationSelect.appendChild(option);
-		});
+		await buildingSelector.loadZones();
+		await buildingSelector.loadBuildings();
 	} catch (error) {
 		//display an error if categories cannot be loaded
 		duplicateItemMessage.textContent =
 			'Failed to load categories and locations.';
 		console.error('Error loading categories and locations:', error);
 	}
+	// Update buildings when the selected zone changes
+	zoneSelect.addEventListener('change', async () => {
+		locationSelect.disabled = true;
+		locationSelect.innerHTML = '<option value="">Loading buildings...</option>';
+
+		try {
+			await buildingSelector.loadBuildings();
+			locationSelect.disabled = false;
+		} catch (error) {
+			duplicateItemMessage.textContent = 'Failed to load buildings.';
+			console.error(error);
+		}
+	});
 
 	// an object made from Lost Report Form(class)
 	const report = new LostReportForm(
@@ -107,5 +107,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// prevent auto submit
 		e.preventDefault();
 		await report.submit();
+	});
+	// reload buildings when the form is reset
+	lostItemForm.addEventListener('reset', async () => {
+		zoneSelect.value = '';
+		locationSelect.disabled = true;
+
+		try {
+			await buildingSelector.loadBuildings();
+			locationSelect.disabled = false;
+		} catch (error) {
+			duplicateItemMessage.textContent = 'Failed to load buildings.';
+			console.error(error);
+		}
 	});
 });

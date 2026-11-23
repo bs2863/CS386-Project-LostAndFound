@@ -70,11 +70,20 @@
 
 				<br /><br />
 
-				<!-- Location from mockData.json -->
+				<!-- Campus Zone -->
+				<label for="zoneId">Campus Zone</label>
+				<br />
+				<select id="zoneId">
+					<option value="">Not Sure / All Zones</option>
+				</select>
+
+				<br /><br />
+
+				<!-- Building -->
 				<label for="locationId">Where did you find it?</label>
 				<br />
 				<select id="locationId" name="locationId" required>
-					<option value="">Select location</option>
+					<option value="">Select building</option>
 				</select>
 
 				<br /><br />
@@ -99,6 +108,7 @@
 		<!--javaScript links -->
 		<script src="/js/navbar.js"></script>
 		<script src="/js/itemReportForm.js"></script>
+		<script src="/js/zoneBuildingSelector.js"></script>
 		<script src="/js/reportFoundItem.js"></script>
 	</body>
 </html>
