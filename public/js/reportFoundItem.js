@@ -29,22 +29,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 	const categorySelect = document.getElementById('categoryId');
 	//location select from dropdown
 	const locationSelect = document.getElementById('locationId');
+	const zoneSelect = document.getElementById('zoneId');
+	const buildingSelector = new ZoneBuildingSelector(zoneSelect, locationSelect);
 	// submit button
 	const submitButton = document.getElementById('submitButton');
 
 	// load categories and locations from the database through the API
 	try {
-		const [categoriesRes, locationsRes] = await Promise.all([
-			fetch('/api/v1/categories'),
-			fetch('/api/v1/locations'),
-		]);
-		if (!categoriesRes.ok || !locationsRes.ok) {
-			throw new Error('failed to load categories and locations');
+		const categoriesRes = await fetch('/api/v1/categories');
+
+		if (!categoriesRes.ok) {
+			throw new Error('Failed to load categories');
 		}
-		// same shape the old mockData.json gave us
+
 		const data = {
 			categories: await categoriesRes.json(),
-			locations: await locationsRes.json(),
 		};
 		// build categories dropdown
 		data.categories.forEach((category) => {
@@ -53,13 +52,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 			option.textContent = category.name;
 			categorySelect.appendChild(option);
 		});
-		// build location dropdown
-		data.locations.forEach((location) => {
-			const option = document.createElement('option');
-			option.value = location.id;
-			option.textContent = location.name;
-			locationSelect.appendChild(option);
-		});
+		// build location dropdown:load campus zones and buildings
+		await buildingSelector.loadZones();
+		await buildingSelector.loadBuildings();
 		// submitButton changes status
 		submitButton.disabled = false;
 	} catch (error) {
@@ -68,6 +63,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 		console.error(error);
 		return;
 	}
+	// Update buildings when user select zone
+	zoneSelect.addEventListener('change', async () => {
+		locationSelect.disabled = true;
+		locationSelect.innerHTML = '<option value="">Loading buildings...</option>';
+
+		try {
+			await buildingSelector.loadBuildings();
+			locationSelect.disabled = false;
+		} catch (error) {
+			confirmation.textContent = 'Failed to load buildings.';
+			console.error(error);
+		}
+	});
+
+	// get buildings when the form is reset
+	form.addEventListener('reset', async () => {
+		zoneSelect.value = '';
+		locationSelect.disabled = true;
+		locationSelect.innerHTML = '<option value="">Loading buildings...</option>';
+
+		try {
+			await buildingSelector.loadBuildings();
+			locationSelect.disabled = false;
+		} catch (error) {
+			confirmation.textContent = 'Failed to load buildings.';
+			console.error(error);
+		}
+	});
 
 	const report = new FoundReportForm(form, confirmation, submitButton);
 

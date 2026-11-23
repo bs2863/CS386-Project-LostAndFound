@@ -38,6 +38,18 @@
 					</select>
 				</label>
 
+				<!-- Color -->
+				<label>
+					Color
+					<input type="text" name="color" placeholder="e.g. Black" />
+				</label>
+
+				<!-- Brand -->
+				<label>
+					Brand (optional)
+					<input type="text" name="brand" placeholder="e.g. Apple, Bose, YETI" />
+				</label>
+
 				<!-- Date and time -->
 
 				<label>
@@ -46,10 +58,14 @@
 				</label>
 
 				<!-- Location -->
+				<label for="zoneId">Campus Zone</label>
+				<select id="zoneId">
+					<option value="">Not Sure / All Zones</option>
+				</select>
 
-				<label for="locationId"> Last known location </label>
+				<label for="locationId">Last known location</label>
 				<select id="locationId" name="location" required>
-					<option value="" disabled selected>Select location</option>
+					<option value="">Select building</option>
 				</select>
 
 				<!-- Description -->
@@ -72,8 +88,6 @@
 					<div class="lost-item-row">
 						<input type="tel" name="phone" placeholder="(###)###-####" />
 
-						<input type="email" name="email" placeholder="louie@nau.edu" />
-					</div>
 				</label>
 
 				<!-- Submit Button -->
@@ -89,6 +103,7 @@
 		<script src="/js/navbar.js"></script>
 		<script src="/js/itemReportForm.js"></script>
 		<script src="/js/duplicateCheck.js"></script>
+		<script src="/js/zoneBuildingSelector.js"></script>
 		<script src="/js/reportPage.js"></script>
 	</body>
 </html>
