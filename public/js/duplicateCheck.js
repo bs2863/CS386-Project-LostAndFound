@@ -5,6 +5,7 @@ async function checkDuplicates(lostItem) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+            type: lostItem.type,
             name: lostItem.name,
             categoryId: lostItem.categoryId,
             locationId: lostItem.locationId

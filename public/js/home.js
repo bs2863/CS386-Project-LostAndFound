@@ -136,7 +136,7 @@ function buildCard(report) {
 	note.textContent = display.note;
 	status.append(badge, note);
 
-	// open reports can be cancelled (the button is connected in a later PR)
+	// open reports can be reviewed (if they have matches) and cancelled
 	if (report.status === 'open') {
 		const actions = document.createElement('div');
 		actions.className = 'report-actions';
@@ -152,7 +152,24 @@ function buildCard(report) {
 		cancel.type = 'button';
 		cancel.className = 'button-secondary';
 		cancel.textContent = 'Cancel report';
+		cancel.setAttribute('popovertarget', `cancel-${report.id}`);
 		actions.appendChild(cancel);
+		document.body.appendChild(buildCancelPanel(report));
+		status.appendChild(actions);
+	}
+
+	// a claimed report links to directions to the building holding the item
+	if (report.status === 'ready' && report.pickupLocationName) {
+		const actions = document.createElement('div');
+		actions.className = 'report-actions';
+		const directions = document.createElement('a');
+		directions.className = 'directions-link';
+		const place = `${report.pickupLocationName}, Northern Arizona University`;
+		directions.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+		directions.target = '_blank';
+		directions.rel = 'noopener';
+		directions.textContent = 'Get directions';
+		actions.appendChild(directions);
 		status.appendChild(actions);
 	}
 
@@ -229,6 +246,53 @@ function buildMatchesPanel(report) {
 	close.setAttribute('popovertargetaction', 'hide');
 
 	panel.append(title, help, list, close);
+	return panel;
+}
+
+// Build the "Cancel this report?" confirmation for one report.
+function buildCancelPanel(report) {
+	const panel = document.createElement('div');
+	panel.id = `cancel-${report.id}`;
+	panel.className = 'matches-panel confirm-panel';
+	panel.setAttribute('popover', '');
+
+	const title = document.createElement('h2');
+	title.textContent = 'Cancel this report?';
+	const help = document.createElement('p');
+	help.className = 'matches-help';
+	help.textContent = `Your report for "${report.name}" will be closed, and you will no longer see matches for it.`;
+
+	const actions = document.createElement('div');
+	actions.className = 'report-actions';
+
+	// confirming cancels the report; the page reloads to move it to Closed
+	const confirm = document.createElement('button');
+	confirm.type = 'button';
+	confirm.textContent = 'Yes, cancel report';
+	confirm.addEventListener('click', async () => {
+		confirm.disabled = true;
+		try {
+			const response = await fetch(`/api/v1/items/${report.id}/cancel`, { method: 'POST' });
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`);
+			}
+			window.location.reload();
+		} catch (error) {
+			console.error('Failed to cancel report:', error);
+			help.textContent = 'Could not cancel this report. Please reload the page and try again.';
+			confirm.disabled = false;
+		}
+	});
+
+	const keep = document.createElement('button');
+	keep.type = 'button';
+	keep.className = 'button-secondary';
+	keep.textContent = 'Keep report';
+	keep.setAttribute('popovertarget', panel.id);
+	keep.setAttribute('popovertargetaction', 'hide');
+
+	actions.append(confirm, keep);
+	panel.append(title, help, actions);
 	return panel;
 }
 

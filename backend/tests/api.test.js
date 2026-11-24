@@ -27,8 +27,7 @@ after(async () => {
 // every test starts with the same three items
 beforeEach(() => {
 	db.exec('DELETE FROM Claim');
-	db.exec('DELETE FROM LostReportContact');
-	db.exec('DELETE FROM Item');
+	db.exec('DELETE FROM Image');
 	db.exec('DELETE FROM LostReportContact');
 	db.exec('DELETE FROM Item');
 	db.exec(`
@@ -194,6 +193,25 @@ test('POST duplicate existing item is rejected', async () => {
     assert.equal(count.count, 1);
 });
 
+// staff can log the found item that matches a lost report: same name,
+// category and building are only a duplicate when the type is the same too
+test('POST found item with the same details as a lost report is allowed', async () => {
+	const res = await fetch(`${url}/items`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			type: 'found',
+			name: 'Black Wallet',
+			categoryId: 'C003',
+			description: 'Black wallet turned in at the front desk',
+			date: '2026-10-03',
+			locationId: '28',
+		}),
+	});
+
+	assert.equal(res.status, 201);
+});
+
 // Test GET matches for one lost report
 test('GET matches returns likely found items with limited details', async () => {
 	const lost = db.prepare("SELECT Id FROM Item WHERE Name = 'Black Wallet'").get();
@@ -281,4 +299,107 @@ test('POST claim twice is rejected the second time', async () => {
 
 	assert.equal(res.status, 409);
 	assert.equal(db.prepare('SELECT COUNT(*) AS count FROM Claim').get().count, 1);
+});
+
+// Test POST cancel
+const cancel = (id) => fetch(`${url}/items/${id}/cancel`, { method: 'POST' });
+
+test('POST cancel closes an open report', async () => {
+	const res = await cancel(idOf('Black Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(statusOf('Black Wallet'), 'cancelled');
+});
+
+test('POST cancel on a claimed report is rejected', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	const res = await cancel(idOf('Black Wallet'));
+
+	assert.equal(res.status, 409);
+	assert.equal(statusOf('Black Wallet'), 'ready');
+});
+
+test('POST cancel on a found item or unknown id is rejected', async () => {
+	const foundRes = await cancel(idOf('Wallet'));
+	const missingRes = await cancel(999999);
+
+	assert.equal(foundRes.status, 404);
+	assert.equal(missingRes.status, 404);
+	assert.equal(statusOf('Wallet'), 'unclaimed');
+});
+
+// Test POST pickup
+const pickup = (id) => fetch(`${url}/items/${id}/pickup`, { method: 'POST' });
+
+test('POST pickup by the owner closes the report and the found item', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	const res = await pickup(idOf('Black Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(statusOf('Black Wallet'), 'resolved');
+	assert.equal(statusOf('Wallet'), 'resolved');
+});
+
+test('POST pickup by staff using the found item id works the same way', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	const res = await pickup(idOf('Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(statusOf('Black Wallet'), 'resolved');
+	assert.equal(statusOf('Wallet'), 'resolved');
+});
+
+test('POST pickup without a claim, or twice, is rejected', async () => {
+	const unclaimedRes = await pickup(idOf('Black Wallet'));
+	assert.equal(unclaimedRes.status, 404);
+	assert.equal(statusOf('Black Wallet'), 'open');
+
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	await pickup(idOf('Black Wallet'));
+	const secondRes = await pickup(idOf('Black Wallet'));
+	assert.equal(secondRes.status, 409);
+});
+
+test('GET items shows staff who a held found item is for', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+
+	const res = await fetch(`${url}/items?type=found&q=wallet`);
+	const [item] = await res.json();
+
+	assert.equal(item.status, 'held');
+	assert.equal(item.heldForEmail, 'lk123@nau.edu');
+});
+
+// Test DELETE
+const remove = (id) => fetch(`${url}/items/${id}`, { method: 'DELETE' });
+const countOf = (table) => db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
+
+test('DELETE a lost report also removes its contact info', async () => {
+	const res = await remove(idOf('Black Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(db.prepare("SELECT 1 FROM Item WHERE Name = 'Black Wallet'").get(), undefined);
+	assert.equal(countOf('LostReportContact'), 0);
+});
+
+test('DELETE an item that is held for pickup is rejected', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+
+	const foundRes = await remove(idOf('Wallet'));
+	const lostRes = await remove(idOf('Black Wallet'));
+
+	assert.equal(foundRes.status, 409);
+	assert.equal(lostRes.status, 409);
+	assert.equal(countOf('Claim'), 1);
+});
+
+test('DELETE a picked-up item also removes its claim', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	await pickup(idOf('Wallet'));
+
+	const res = await remove(idOf('Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(countOf('Claim'), 0);
+	assert.equal(statusOf('Black Wallet'), 'resolved');
 });

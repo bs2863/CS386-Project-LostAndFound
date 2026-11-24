@@ -122,6 +122,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 			statusColumn.textContent =
 				item.status.charAt(0).toUpperCase() + item.status.slice(1);
 
+            // a held item shows who claimed it, so staff know whose ID to check
+			if (item.status === 'held' && item.heldForEmail) {
+				const heldFor = document.createElement('small');
+				heldFor.textContent = `for ${item.heldForEmail}`;
+				statusColumn.append(document.createElement('br'), heldFor);
+			}
+
 			// actions column
 			const actionsColumn = document.createElement('td');
 
@@ -206,6 +213,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 			// add the buttons to actions column
 			actionsColumn.append(viewButton, editButton, removeButton);
+
+            // a held item can be marked as picked up once staff check the owner's ID
+			if (item.status === 'held') {
+				const pickupButton = document.createElement('button');
+				pickupButton.textContent = 'Mark Picked Up';
+				pickupButton.className = 'pickup-btn';
+
+				pickupButton.addEventListener('click', async () => {
+					const owner = item.heldForEmail || 'the owner';
+					const confirmPickup = confirm(
+						`Check the ID of ${owner}, then confirm that "${item.name}" was picked up.`,
+					);
+
+					// If the user presses cancel, simply exit
+					if (!confirmPickup) return;
+
+					try {
+						const res = await fetch(`/api/v1/items/${item.id}/pickup`, {
+							method: 'POST',
+						});
+
+						if (!res.ok) {
+							const error = await res.json();
+							throw new Error(error.error || 'Failed to mark item as picked up');
+						}
+
+						alert('Item marked as picked up!');
+
+						// Refresh the table
+						await fetchItems();
+					} catch (error) {
+						console.error('Failed to mark item as picked up: ', error);
+						alert(error.message);
+					}
+				});
+
+				actionsColumn.appendChild(pickupButton);
+			}
 
 			row.append(
 				nameColumn,

@@ -408,6 +408,16 @@ label {
 	color: #b91c1c;
 }
 
+.staff-items .pickup-btn {
+	margin-left: 4px;
+	padding: 6px 10px;
+	border: 1px solid #15803d;
+	border-radius: 6px;
+	color: #15803d;
+	font-size: 13px;
+	font-weight: 600;
+}
+
 .staff-items button:hover:not(:disabled) {
 	background: #e5eaf0;
 }

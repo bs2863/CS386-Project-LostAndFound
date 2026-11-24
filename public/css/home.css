@@ -206,6 +206,13 @@
 	color: var(--nau-blue);
 }
 
+/* "Get directions" link on a Ready for pickup card */
+.directions-link {
+	color: var(--nau-blue);
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
 /* =========================
    "REVIEW MATCHES" PANEL (popover)
 ========================= */
@@ -268,6 +275,11 @@
 .matches-close:hover:not(:disabled) {
 	background: #e0e7ef;
 	color: var(--nau-blue);
+}
+
+.confirm-panel {
+	width: min(100% - 32px, 440px);
+	border-top-color: var(--muted);
 }
 
 @media (max-width: 600px) {

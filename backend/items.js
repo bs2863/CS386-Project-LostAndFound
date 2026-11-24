@@ -24,20 +24,24 @@ router.get('/', (req, res) => {
 	// "AS name" etc. give camelCase JSON, (the same shape as mockData.json)
 	// The JOINs add readable category/location names next to the ids.
 	// A claimed lost report also gets pickupLocationName: the building
-	// where its found item is being held (null for everything else)
+	// where its found item is being held. A claimed found item gets
+	// heldForEmail: the email on the report that claimed it, so staff
+	// know whose ID to check at pickup (both null for everything else)
 	let sql = `
 		SELECT i.Id AS id, i.Type AS type, i.Name AS name,
 		       i.CategoryId AS categoryId, c.Name AS categoryName,
 		       i.Color AS color, i.Brand AS brand, i.Description AS description,
 		       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
 		       i.Status AS status, i.ReportedBy AS reportedBy,
-		       pl.Name AS pickupLocationName
+		       pl.Name AS pickupLocationName, hrc.Email AS heldForEmail
 		FROM Item i
 		LEFT JOIN Category c ON c.Id = i.CategoryId
 		LEFT JOIN Location l ON l.Id = i.LocationId
 		LEFT JOIN Claim cl ON cl.LostItemId = i.Id
 		LEFT JOIN Item f ON f.Id = cl.FoundItemId
-		LEFT JOIN Location pl ON pl.Id = f.LocationId`;
+		LEFT JOIN Location pl ON pl.Id = f.LocationId
+		LEFT JOIN Claim hc ON hc.FoundItemId = i.Id
+		LEFT JOIN LostReportContact hrc ON hrc.ItemId = hc.LostItemId`;
 
 	// build the WHERE clause from whichever filters were sent
 	const conditions = [];
@@ -178,13 +182,90 @@ router.post('/:id/claim', (req, res) => {
 	}
 });
 
+// POST /api/v1/items/:id/pickup
+// Marks a claimed item as picked up. The id may be the lost report
+// (from the owner's inbox) or the held found item (from the staff page).
+// Both items become "resolved", which closes the report.
+router.post('/:id/pickup', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	try {
+		const claim = db
+			.prepare(
+				`SELECT cl.LostItemId, cl.FoundItemId, lost.Status AS LostStatus
+				 FROM Claim cl
+				 JOIN Item lost ON lost.Id = cl.LostItemId
+				 WHERE cl.LostItemId = ? OR cl.FoundItemId = ?`,
+			)
+			.get(itemId, itemId);
+
+		if (!claim) {
+			return res.status(404).json({ error: 'No claimed item found for this ID' });
+		}
+		if (claim.LostStatus !== 'ready') {
+			return res.status(409).json({ error: 'This item has already been picked up' });
+		}
+
+		// close the report and the found item together
+		try {
+			db.exec('BEGIN');
+			const setStatus = db.prepare("UPDATE Item SET Status = 'resolved' WHERE Id = ?");
+			setStatus.run(claim.LostItemId);
+			setStatus.run(claim.FoundItemId);
+			db.exec('COMMIT');
+		} catch (error) {
+			db.exec('ROLLBACK');
+			throw error;
+		}
+
+		return res.status(200).json({ message: 'Item picked up' });
+	} catch (error) {
+		console.error('Failed to mark item as picked up:', error);
+		return res.status(500).json({ error: 'Failed to mark item as picked up' });
+	}
+});
+
+// POST /api/v1/items/:id/cancel
+// The owner cancels a lost report they no longer need.
+// Only a report that is still searching can be cancelled; once an item
+// is held for it (status "ready"), it is closed by picking it up instead.
+router.post('/:id/cancel', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	try {
+		const report = db.prepare('SELECT Type, Status FROM Item WHERE Id = ?').get(itemId);
+
+		if (!report || report.Type !== 'lost') {
+			return res.status(404).json({ error: 'Lost report not found' });
+		}
+		if (report.Status !== 'open') {
+			return res.status(409).json({ error: 'Only an open report can be cancelled' });
+		}
+
+		db.prepare("UPDATE Item SET Status = 'cancelled' WHERE Id = ?").run(itemId);
+
+		return res.status(200).json({ message: 'Report cancelled' });
+	} catch (error) {
+		console.error('Failed to cancel report:', error);
+		return res.status(500).json({ error: 'Failed to cancel report' });
+	}
+});
+
 // POST /api/v1/items/check-duplicate
 // Check whether an item already exists
 router.post('/check-duplicate', (req, res) => {
-    const { name, categoryId, locationId } = req.body || {};
+    const { type, name, categoryId, locationId } = req.body || {};
 
     // Check required fields
-    if (!name || !categoryId || !locationId) {
+    if (!type || !name || !categoryId || !locationId) {
         return res.status(400).json({
             error: 'Missing required fields'
         });
@@ -194,11 +275,12 @@ router.post('/check-duplicate', (req, res) => {
         const duplicate = db.prepare(`
             SELECT 1
             FROM Item
-            WHERE Name = ?
+			WHERE Type = ?
+            AND Name = ?
             AND CategoryId = ?
             AND LocationId = ?
             LIMIT 1
-        `).get(name.trim(), categoryId, locationId);
+        `).get(type, name.trim(), categoryId, locationId);
 		// if duplicate exists, return early
         if (duplicate) {
             return res.status(200).json({
@@ -270,11 +352,12 @@ router.post('/', (req, res) => {
 		const duplicate = db.prepare(`
             SELECT 1
             FROM Item
-            WHERE Name = ?
+			WHERE Type = ?
+            AND Name = ?
             AND CategoryId = ?
             AND LocationId = ?
             LIMIT 1
-        `).get(name.trim(), categoryId, locationId);
+        `).get(type, name.trim(), categoryId, locationId);
 			// if duplicate exists, return early
 		if (duplicate) {
 			return res.status(400).json({
@@ -428,12 +511,36 @@ router.delete('/:id', (req, res) => {
 	}
 
 	try {
-		const command = db.prepare(`
-			DELETE FROM Item
-			Where Id = ?	
-		`);
+		// an item that is held for someone can't be removed until it is
+		// picked up, or the owner's report would point at a missing item
+		const activeClaim = db.prepare(`
+			SELECT 1
+			FROM Claim cl
+			JOIN Item lost ON lost.Id = cl.LostItemId
+			WHERE (cl.LostItemId = ? OR cl.FoundItemId = ?)
+			AND lost.Status = 'ready'
+		`).get(itemId, itemId);
 
-		const result = command.run(itemId);
+		if (activeClaim) {
+			return res.status(409).json({
+				error: 'This item is held for pickup. Mark it picked up before removing it.'
+			});
+		}
+
+		// rows in other tables point at the item, so delete them first
+		// (foreign keys are enforced), all in one transaction
+		let result;
+		try {
+			db.exec('BEGIN');
+			db.prepare('DELETE FROM Claim WHERE LostItemId = ? OR FoundItemId = ?').run(itemId, itemId);
+			db.prepare('DELETE FROM LostReportContact WHERE ItemId = ?').run(itemId);
+			db.prepare('DELETE FROM Image WHERE ItemId = ?').run(itemId);
+			result = db.prepare('DELETE FROM Item WHERE Id = ?').run(itemId);
+			db.exec('COMMIT');
+		} catch (error) {
+			db.exec('ROLLBACK');
+			throw error;
+		}
 
 		if (result.changes === 0) {
 			return res.status(404).json({

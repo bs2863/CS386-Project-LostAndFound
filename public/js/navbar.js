@@ -14,7 +14,7 @@ fetch('/components/navbar.html')
 		const reportLost = document.getElementById('reportLostLink');
 		const registerFound = document.getElementById('registerFoundLink');
 		const manageItems = document.getElementById('manageItemsLink');
-		const findItems = document.getElementById('findItemsLink');
+		const myReports = document.getElementById('myReportsLink');
 		const navbarBrand = document.getElementById('navbarBrand');
 		// navbar shows the logged in user's ID (or guest if no one is logged in)
 		const email = localStorage.getItem('demoEmail');
@@ -27,7 +27,7 @@ fetch('/components/navbar.html')
 		}
 
 		// role-based navigation menu handling
-		findItems.hidden = role === 'staff';
+		myReports.hidden = role === 'staff';
 		reportLost.hidden = role !== 'user';
 		registerFound.hidden = role !== 'staff';
 		manageItems.hidden = role !== 'staff';
