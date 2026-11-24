@@ -1,135 +1,139 @@
 // wait for loading page
 document.addEventListener('DOMContentLoaded', async () => {
-    // Gather elements from the staff management HTML
-    const searchInput = document.getElementById('staffSearch');
-    const typeFilter = document.getElementById('staffTypeFilter');
-    const itemList = document.getElementById('staffItemList');
-    const editSection = document.getElementById('editSection');
-    const cancelButton = document.getElementById('cancelEdit');
-    const editForm = document.getElementById('editForm');
-    const editType = document.getElementById('editType');
-    const editStatus = document.getElementById('editStatus');
+	// Gather elements from the staff management HTML
+	const searchInput = document.getElementById('staffSearch');
+	const typeFilter = document.getElementById('staffTypeFilter');
+	const itemList = document.getElementById('staffItemList');
+	const editSection = document.getElementById('editSection');
+	const cancelButton = document.getElementById('cancelEdit');
+	const editForm = document.getElementById('editForm');
+	const editType = document.getElementById('editType');
+	const editStatus = document.getElementById('editStatus');
 
-    // Statuses for each item type
-    const statusByType = {
-        lost: ['open', 'ready', 'resolved', 'cancelled'],
-        found: ['unclaimed', 'held', 'resolved', 'cancelled']
-    };
+	// Statuses for each item type
+	const statusByType = {
+		lost: ['open', 'ready', 'resolved', 'cancelled'],
+		found: ['unclaimed', 'held', 'resolved', 'cancelled'],
+	};
 
-    // Populate the status dropdown based on type (lost or found) of the item
-    function statusOptions(type, currentStatus = '') {
-        const statuses = [...statusByType[type]];
+	// Populate the status dropdown based on type (lost or found) of the item
+	function statusOptions(type, currentStatus = '') {
+		const statuses = [...statusByType[type]];
 
-        // Display current status before touching the drop down menu
-        if (currentStatus && !statuses.includes(currentStatus)) {
-            statuses.unshift(currentStatus);
-        }
+		// Display current status before touching the drop down menu
+		if (currentStatus && !statuses.includes(currentStatus)) {
+			statuses.unshift(currentStatus);
+		}
 
-        editStatus.replaceChildren();
+		editStatus.replaceChildren();
 
-        statuses.forEach(status => {
-            const option = document.createElement('option');
+		statuses.forEach((status) => {
+			const option = document.createElement('option');
 
-            option.value = status;
-            option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+			option.value = status;
+			option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
 
-            editStatus.appendChild(option);
-        });
+			editStatus.appendChild(option);
+		});
+	}
 
-    }
+	// Temporary id when editing an item
+	let editingItemId = null;
 
-    // Temporary id when editing an item
-    let editingItemId = null;
+	cancelButton.addEventListener('click', () => {
+		editSection.hidden = true;
+		editForm.reset();
+		editingItemId = null;
+	});
 
-    cancelButton.addEventListener('click', () => {
-        editSection.hidden = true;
-        editForm.reset();
-        editingItemId = null;
-    });
+	editForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
 
-    editForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+		if (editingItemId === null) return;
 
-        if (editingItemId === null) return;
+		const updatedItem = {
+			name: document.getElementById('editName').value,
+			color: document.getElementById('editColor').value,
+			brand: document.getElementById('editBrand').value,
+			description: document.getElementById('editDescription').value,
+			type: document.getElementById('editType').value,
+			status: document.getElementById('editStatus').value,
+		};
 
-        const updatedItem = {
-            name: document.getElementById('editName').value,
-            color: document.getElementById('editColor').value,
-            brand: document.getElementById('editBrand').value,
-            description: document.getElementById('editDescription').value,
-            type: document.getElementById('editType').value,
-            status: document.getElementById('editStatus').value,
-        };
+		try {
+			const res = await fetch(`/api/v1/items/${editingItemId}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(updatedItem),
+			});
 
-        try {
-            const res = await fetch(`/api/v1/items/${editingItemId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedItem)
-            });
+			if (!res.ok) {
+				const error = await res.json();
 
-            if (!res.ok) {
-                const error = await res.json();
+				throw new Error(error.error || 'Failed to update item');
+			}
 
-                throw new Error(error.error || 'Failed to update item');
-            }
+			alert('Item successfully updated!');
 
-            alert('Item successfully updated!');
+			editSection.hidden = true;
+			editForm.reset();
+			editingItemId = null;
 
-            editSection.hidden = true;
-            editForm.reset();
-            editingItemId = null;
+			await fetchItems();
+		} catch (error) {
+			console.error('Failed to update item: ', error);
+			alert(error.message);
+		}
+	});
 
-            await fetchItems();
-        } catch (error) {
-            console.error('Failed to update item: ', error);
-            alert(error.message);
-        }
-    });
+	function displayItems(items) {
+		// Clear existing table
+		itemList.innerHTML = '';
 
-    function displayItems(items) {
-        // Clear existing table
-        itemList.innerHTML = '';
+		items.forEach((item) => {
+			// create table rows
+			const row = document.createElement('tr');
 
-        items.forEach((item) => {
-            // create table rows
-            const row = document.createElement('tr');
+			// create table column names
+			const nameColumn = document.createElement('td');
+			nameColumn.textContent = item.name;
 
-            // create table column names
-            const nameColumn = document.createElement('td');
-            nameColumn.textContent = item.name;
+			// category column
+			const categoryColumn = document.createElement('td');
+			categoryColumn.textContent = item.categoryName;
 
-            // category column
-            const categoryColumn = document.createElement('td');
-            categoryColumn.textContent = item.categoryName;
+			// location column
+			const locationColumn = document.createElement('td');
+			locationColumn.textContent = item.locationName;
 
-            // location column
-            const locationColumn = document.createElement('td');
-            locationColumn.textContent = item.locationName;
+			// I've chosen to display the raw values that are stored in the database
+			// So to keep everything looking professional and clean, I'm basically splicing
+			// the data together as a string so the first letter is capitalized
 
-            // I've chosen to display the raw values that are stored in the database
-            // So to keep everything looking professional and clean, I'm basically splicing
-            // the data together as a string so the first letter is capitalized
+			// type column
+			const typeColumn = document.createElement('td');
+			typeColumn.textContent =
+				item.type.charAt(0).toUpperCase() + item.type.slice(1);
 
-            // type column
-            const typeColumn = document.createElement('td');
-            typeColumn.textContent = item.type.charAt(0).toUpperCase() + item.type.slice(1);
+			// status column
+			const statusColumn = document.createElement('td');
+			statusColumn.textContent =
+				item.status.charAt(0).toUpperCase() + item.status.slice(1);
 
-            // status column
-            const statusColumn = document.createElement('td');
-            statusColumn.textContent = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+			// actions column
+			const actionsColumn = document.createElement('td');
 
-            // actions column
-            const actionsColumn = document.createElement('td');
-
-            // view button
-            const viewButton = document.createElement('button');
-            viewButton.textContent = 'View';
-            viewButton.addEventListener('click', () => {
-                alert(
-                    `Item Information
+			// view button
+			const viewButton = document.createElement('button');
+			viewButton.innerHTML = '<i class="bi bi-eye"></i>';
+			viewButton.title = 'View';
+			viewButton.setAttribute('aria-label', 'View');
+			viewButton.className = 'view-btn';
+			viewButton.addEventListener('click', () => {
+				alert(
+					`Item Information
                     Name: ${item.name}
                     Type: ${item.type}
                     Category: ${item.categoryName}
@@ -139,116 +143,119 @@ document.addEventListener('DOMContentLoaded', async () => {
                     Description: ${item.description}
                     Date: ${item.date}
                     Status: ${item.status}
-                    Item Identification Number: ${item.id}`
-                );
-            });
+                    Item Identification Number: ${item.id}`,
+				);
+			});
 
-            // edit button
-            const editButton = document.createElement('button');
-            editButton.textContent = 'Edit';
-            editButton.addEventListener('click', () => {
+			// edit button
+			const editButton = document.createElement('button');
+			editButton.innerHTML = '<i class="bi bi-pencil-square"></i>';
+			editButton.title = 'Edit';
+			editButton.setAttribute('aria-label', 'Edit');
+			editButton.className = 'edit-btn';
+			editButton.addEventListener('click', () => {
+				// id number of the item we are editing
+				editingItemId = item.id;
 
-                // id number of the item we are editing
-                editingItemId = item.id;
+				editSection.hidden = false;
 
-                editSection.hidden = false;
+				document.getElementById('editName').value = item.name;
+				document.getElementById('editColor').value = item.color || '';
+				document.getElementById('editBrand').value = item.brand || '';
+				document.getElementById('editDescription').value =
+					item.description || '';
+				editType.value = item.type;
+				statusOptions(item.type, item.status);
+			});
 
-                document.getElementById('editName').value = item.name;
-                document.getElementById('editColor').value = item.color || '';
-                document.getElementById('editBrand').value = item.brand || '';
-                document.getElementById('editDescription').value = item.description || '';
-                editType.value = item.type;
-                statusOptions(item.type, item.status);
+			// remove button
+			const removeButton = document.createElement('button');
+			removeButton.innerHTML = '<i class="bi bi-trash"></i>';
+			removeButton.title = 'Remove';
+			removeButton.setAttribute('aria-label', 'Remove');
+			removeButton.className = 'remove-btn';
 
-            });
+			removeButton.addEventListener('click', async () => {
+				const confirmMessage = confirm(
+					`Are you sure you want to remove "${item.name}"?`,
+				);
 
-            // remove button
-            const removeButton = document.createElement('button');
-            removeButton.textContent = 'Remove';
+				// If the user presses cancel, simply exit
+				if (!confirmMessage) return;
 
-            removeButton.addEventListener('click', async () => {
+				try {
+					// send the delete request to the backend
+					const res = await fetch(`/api/v1/items/${item.id}`, {
+						method: 'DELETE',
+					});
 
-                const confirmMessage = confirm(`Are you sure you want to remove "${item.name}"?`)
+					if (!res.ok) {
+						const error = await res.json();
+						throw new Error(error.error || 'Failed to delete item');
+					}
 
-                // If the user presses cancel, simply exit
-                if (!confirmMessage) return;
+					alert('Item removed successfully!');
 
-                try {
-                    // send the delete request to the backend
-                    const res = await fetch(`/api/v1/items/${item.id}`, {
-                        method: 'DELETE'
-                    });
+					// Refresh the table
+					await fetchItems();
+				} catch (error) {
+					console.error('Failed to remove item: ', error);
+					alert(error.message);
+				}
+			});
 
-                    if (!res.ok) {
-                        const error = await res.json();
-                        throw new Error(error.error || 'Failed to delete item');
-                    }
+			// add the buttons to actions column
+			actionsColumn.append(viewButton, editButton, removeButton);
 
-                    alert('Item removed successfully!');
+			row.append(
+				nameColumn,
+				categoryColumn,
+				locationColumn,
+				typeColumn,
+				statusColumn,
+				actionsColumn,
+			);
 
-                    // Refresh the table
-                    await fetchItems();
+			itemList.appendChild(row);
+		});
+	}
 
-                } catch (error) {
-                    console.error('Failed to remove item: ', error);
-                    alert(error.message);
-                }
-            });
+	async function fetchItems() {
+		try {
+			// build api request
+			const query = new URLSearchParams();
 
-            // add the buttons to actions column
-            actionsColumn.append(viewButton, editButton, removeButton);
+			// check if filter was selected
+			if (typeFilter.value) {
+				query.set('type', typeFilter.value);
+			}
 
-            row.append(
-                nameColumn,
-                categoryColumn,
-                locationColumn,
-                typeColumn,
-                statusColumn,
-                actionsColumn
-            );
+			// check for user search
+			if (searchInput.value.trim()) {
+				query.set('q', searchInput.value.trim());
+			}
 
-            itemList.appendChild(row);
-        });
-    }
+			// fetch items from backend to populate
+			const res = await fetch(`/api/v1/items?${query}`);
 
-    async function fetchItems() {
+			if (!res.ok) {
+				throw new Error('Failed to retrieve items');
+			}
 
-        try {
-            // build api request
-            const query = new URLSearchParams();
+			const items = await res.json();
 
-            // check if filter was selected
-            if (typeFilter.value) {
-                query.set('type', typeFilter.value);
-            }
+			displayItems(items);
+		} catch (error) {
+			console.error('Failed to load staff items: ', error);
+		}
+	}
 
-            // check for user search
-            if (searchInput.value.trim()) {
-                query.set('q', searchInput.value.trim());
-            }
+	// Refresh items when the search input changes
+	searchInput.addEventListener('input', fetchItems);
 
-            // fetch items from backend to populate
-            const res = await fetch(`/api/v1/items?${query}`);
+	// Refresh items when the type filter changes (All items, lost, or found)
+	typeFilter.addEventListener('change', fetchItems);
 
-            if (!res.ok) {
-                throw new Error('Failed to retrieve items');
-            }
-
-            const items = await res.json();
-
-            displayItems(items);
-
-        } catch (error) {
-            console.error('Failed to load staff items: ', error)
-        }
-    }
-
-    // Refresh items when the search input changes
-    searchInput.addEventListener('input', fetchItems);
-
-    // Refresh items when the type filter changes (All items, lost, or found)
-    typeFilter.addEventListener('change', fetchItems);
-
-    // Load all items
-    fetchItems();
+	// Load all items
+	fetchItems();
 });

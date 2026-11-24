@@ -310,63 +310,127 @@ label {
 	grid-template-areas:
 		'dashboard'
 		'filter'
-		'items';
-	grid-template-rows: auto auto auto;
-	gap: 3px;
-	padding: 5px;
+		'items'
+		'edit';
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
+	padding: 24px;
+	max-width: 1200px;
+	box-sizing: border-box;
+	margin: 0 auto; /* show in the middle */
 }
 
 .staff-dashboard {
 	grid-area: dashboard;
-	text-align: center;
+	text-align: left;
+	color: var(--nau-blue);
+}
+
+.staff-dashboard h1 {
+	font-size: 24px;
+	margin: 0 0 8px;
+}
+
+.staff-dashboard p {
+	font-size: 14px;
+	color: var(--muted);
+	margin: 0;
 }
 
 .staff-filter {
 	grid-area: filter;
 	display: flex;
-	gap: 25px;
+	gap: 12px;
+	flex-wrap: wrap;
 }
 
 .staff-filter select {
-	padding: 8px 14px;
-	border: 1px solid #b8c2cc;
+	appearance: none;
+	padding: 8px 36px 8px 14px;
+	border: 1px solid var(--border);
 	font-size: 16px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' fill='none' stroke='%23334155' stroke-width='1.5'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 12px center;
 }
 
 .staff-items {
 	grid-area: items;
+	background: white;
+	padding: 20px;
+	overflow-x: auto;
+	border-radius: 8px;
+	min-width: 0;
+	border: 1px solid var(--border);
 }
 
 .staff-items table {
 	width: 100%;
 	border-collapse: collapse;
 }
+/* list of items text */
+.staff-items h2 {
+	font-size: 18px;
+	margin: 0 0 16px;
+}
+
+.staff-items th {
+	background: var(--nau-blue);
+	color: white;
+	font-weight: 600;
+	font-size: 14px;
+}
 
 .staff-items th,
 .staff-items td {
-	padding: 10px;
+	padding: 12px;
+	font-size: 14px;
 	text-align: left;
 	border-bottom: 1px solid var(--border);
 }
 
-.staff-items th {
-	background-color: var(--nau-blue);
-	color: white;
+.staff-items button {
+	background: transparent;
+	border: none;
+	padding: 8px;
+	font-size: 18px;
+}
+
+.staff-items .view-btn {
+	color: var(--nau-blue);
+}
+
+.staff-items .edit-btn {
+	color: #b8860b;
+}
+
+.staff-items .remove-btn {
+	color: #b91c1c;
+}
+
+.staff-items button:hover:not(:disabled) {
+	background: #e5eaf0;
 }
 /* =========================
 	STAFF EDIT BOX
 ========================= */
 .staff-edit {
 	position: fixed;
-	top: 16px;
-	right: 24px;
-
+	top: 50%;
+	left: 50%;
+	width: 90%;
+	max-width: 440px;
+	max-height: 90vh;
+	transform: translate(-50%, -50%);
 	box-sizing: border-box;
-	padding: 22px;
+	overflow-y: auto;
+	padding: 24px;
 	background: var(--surface);
 	border: 1px solid var(--border);
-	border-top: 5px solid var(--nau-gold);
-	border-radius: 10px;
+	border-top: 4px solid var(--nau-gold);
+	border-radius: 8px;
+	box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.35);
+	z-index: 100;
 }
 
 .staff-edit[hidden] {
@@ -374,7 +438,8 @@ label {
 }
 /* Heading */
 .staff-edit h2 {
-	margin: 0 0 20px;
+	margin: 0 0 16px;
+	font-size: 20px;
 	color: var(--nau-blue);
 }
 
@@ -393,10 +458,10 @@ label {
 #editForm textarea {
 	box-sizing: border-box;
 	width: 100%;
-	padding: 10px;
-	border: 1px solid black;
-	border-radius: 4px;
-	font: inherit;
+	padding: 8px 12px;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	font-size: 14px;
 }
 
 #editForm textarea {
@@ -485,7 +550,6 @@ label {
 .found-item-page button {
 	width: 100%;
 }
-
 
 .found-item-page {
 	box-sizing: border-box;
@@ -588,57 +652,54 @@ label {
 	line-height: 1.4;
 }
 
-
-
-
 /* =========================
    REPORT LOST ITEM PAGE
 ========================= */
 
 .lost-item-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 }
 
 .lost-item-form > label {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-weight: 600;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-weight: 600;
 }
 
 /* location label and dropdown are separate */
-.lost-item-form > label[for="locationId"] {
-    margin-bottom: -8px;
+.lost-item-form > label[for='locationId'] {
+	margin-bottom: -8px;
 }
 
 .lost-item-form input,
 .lost-item-form select {
-    width: 100%;
-    min-width: 0;
+	width: 100%;
+	min-width: 0;
 }
 
 /* phone and email on the same row */
 .lost-item-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
 }
 
-.lost-item-form button[type="submit"] {
-    width: 100%;
-    margin-top: 8px;
+.lost-item-form button[type='submit'] {
+	width: 100%;
+	margin-top: 8px;
 }
 
 .lost-item-message {
-    margin: 0;
-    color: var(--muted);
-    line-height: 1.5;
+	margin: 0;
+	color: var(--muted);
+	line-height: 1.5;
 }
 
 @media (max-width: 600px) {
-    .lost-item-row {
-        grid-template-columns: 1fr;
-    }
+	.lost-item-row {
+		grid-template-columns: 1fr;
+	}
 }
