@@ -27,8 +27,7 @@ after(async () => {
 // every test starts with the same three items
 beforeEach(() => {
 	db.exec('DELETE FROM Claim');
-	db.exec('DELETE FROM LostReportContact');
-	db.exec('DELETE FROM Item');
+	db.exec('DELETE FROM Image');
 	db.exec('DELETE FROM LostReportContact');
 	db.exec('DELETE FROM Item');
 	db.exec(`
@@ -369,4 +368,38 @@ test('GET items shows staff who a held found item is for', async () => {
 
 	assert.equal(item.status, 'held');
 	assert.equal(item.heldForEmail, 'lk123@nau.edu');
+});
+
+// Test DELETE
+const remove = (id) => fetch(`${url}/items/${id}`, { method: 'DELETE' });
+const countOf = (table) => db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
+
+test('DELETE a lost report also removes its contact info', async () => {
+	const res = await remove(idOf('Black Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(db.prepare("SELECT 1 FROM Item WHERE Name = 'Black Wallet'").get(), undefined);
+	assert.equal(countOf('LostReportContact'), 0);
+});
+
+test('DELETE an item that is held for pickup is rejected', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+
+	const foundRes = await remove(idOf('Wallet'));
+	const lostRes = await remove(idOf('Black Wallet'));
+
+	assert.equal(foundRes.status, 409);
+	assert.equal(lostRes.status, 409);
+	assert.equal(countOf('Claim'), 1);
+});
+
+test('DELETE a picked-up item also removes its claim', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	await pickup(idOf('Wallet'));
+
+	const res = await remove(idOf('Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(countOf('Claim'), 0);
+	assert.equal(statusOf('Black Wallet'), 'resolved');
 });

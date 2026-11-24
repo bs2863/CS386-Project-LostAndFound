@@ -511,12 +511,36 @@ router.delete('/:id', (req, res) => {
 	}
 
 	try {
-		const command = db.prepare(`
-			DELETE FROM Item
-			Where Id = ?	
-		`);
+		// an item that is held for someone can't be removed until it is
+		// picked up, or the owner's report would point at a missing item
+		const activeClaim = db.prepare(`
+			SELECT 1
+			FROM Claim cl
+			JOIN Item lost ON lost.Id = cl.LostItemId
+			WHERE (cl.LostItemId = ? OR cl.FoundItemId = ?)
+			AND lost.Status = 'ready'
+		`).get(itemId, itemId);
 
-		const result = command.run(itemId);
+		if (activeClaim) {
+			return res.status(409).json({
+				error: 'This item is held for pickup. Mark it picked up before removing it.'
+			});
+		}
+
+		// rows in other tables point at the item, so delete them first
+		// (foreign keys are enforced), all in one transaction
+		let result;
+		try {
+			db.exec('BEGIN');
+			db.prepare('DELETE FROM Claim WHERE LostItemId = ? OR FoundItemId = ?').run(itemId, itemId);
+			db.prepare('DELETE FROM LostReportContact WHERE ItemId = ?').run(itemId);
+			db.prepare('DELETE FROM Image WHERE ItemId = ?').run(itemId);
+			result = db.prepare('DELETE FROM Item WHERE Id = ?').run(itemId);
+			db.exec('COMMIT');
+		} catch (error) {
+			db.exec('ROLLBACK');
+			throw error;
+		}
 
 		if (result.changes === 0) {
 			return res.status(404).json({
@@ -535,5 +559,3 @@ router.delete('/:id', (req, res) => {
 		});
 	}
 });
-
-module.exports = router;
