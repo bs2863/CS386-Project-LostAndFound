@@ -206,6 +206,13 @@
 	color: var(--nau-blue);
 }
 
+/* "Get directions" link on a Ready for pickup card */
+.directions-link {
+	color: var(--nau-blue);
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
 /* =========================
    "REVIEW MATCHES" PANEL (popover)
 ========================= */

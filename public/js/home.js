@@ -156,6 +156,21 @@ function buildCard(report) {
 		status.appendChild(actions);
 	}
 
+	// a claimed report links to directions to the building holding the item
+	if (report.status === 'ready' && report.pickupLocationName) {
+		const actions = document.createElement('div');
+		actions.className = 'report-actions';
+		const directions = document.createElement('a');
+		directions.className = 'directions-link';
+		const place = `${report.pickupLocationName}, Northern Arizona University`;
+		directions.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+		directions.target = '_blank';
+		directions.rel = 'noopener';
+		directions.textContent = 'Get directions';
+		actions.appendChild(directions);
+		status.appendChild(actions);
+	}
+
 	card.append(info, status);
 	return card;
 }
