@@ -24,20 +24,24 @@ router.get('/', (req, res) => {
 	// "AS name" etc. give camelCase JSON, (the same shape as mockData.json)
 	// The JOINs add readable category/location names next to the ids.
 	// A claimed lost report also gets pickupLocationName: the building
-	// where its found item is being held (null for everything else)
+	// where its found item is being held. A claimed found item gets
+	// heldForEmail: the email on the report that claimed it, so staff
+	// know whose ID to check at pickup (both null for everything else)
 	let sql = `
 		SELECT i.Id AS id, i.Type AS type, i.Name AS name,
 		       i.CategoryId AS categoryId, c.Name AS categoryName,
 		       i.Color AS color, i.Brand AS brand, i.Description AS description,
 		       i.Date AS date, i.LocationId AS locationId, l.Name AS locationName,
 		       i.Status AS status, i.ReportedBy AS reportedBy,
-		       pl.Name AS pickupLocationName
+		       pl.Name AS pickupLocationName, hrc.Email AS heldForEmail
 		FROM Item i
 		LEFT JOIN Category c ON c.Id = i.CategoryId
 		LEFT JOIN Location l ON l.Id = i.LocationId
 		LEFT JOIN Claim cl ON cl.LostItemId = i.Id
 		LEFT JOIN Item f ON f.Id = cl.FoundItemId
-		LEFT JOIN Location pl ON pl.Id = f.LocationId`;
+		LEFT JOIN Location pl ON pl.Id = f.LocationId
+		LEFT JOIN Claim hc ON hc.FoundItemId = i.Id
+		LEFT JOIN LostReportContact hrc ON hrc.ItemId = hc.LostItemId`;
 
 	// build the WHERE clause from whichever filters were sent
 	const conditions = [];

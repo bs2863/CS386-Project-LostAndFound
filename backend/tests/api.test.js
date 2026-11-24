@@ -341,3 +341,13 @@ test('POST pickup without a claim, or twice, is rejected', async () => {
 	const secondRes = await pickup(idOf('Black Wallet'));
 	assert.equal(secondRes.status, 409);
 });
+
+test('GET items shows staff who a held found item is for', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+
+	const res = await fetch(`${url}/items?type=found&q=wallet`);
+	const [item] = await res.json();
+
+	assert.equal(item.status, 'held');
+	assert.equal(item.heldForEmail, 'lk123@nau.edu');
+});
