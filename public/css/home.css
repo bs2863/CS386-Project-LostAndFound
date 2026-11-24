@@ -277,6 +277,11 @@
 	color: var(--nau-blue);
 }
 
+.confirm-panel {
+	width: min(100% - 32px, 440px);
+	border-top-color: var(--muted);
+}
+
 @media (max-width: 600px) {
 	.match-card {
 		flex-direction: column;
