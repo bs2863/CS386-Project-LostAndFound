@@ -309,3 +309,35 @@ test('POST cancel on a found item or unknown id is rejected', async () => {
 	assert.equal(missingRes.status, 404);
 	assert.equal(statusOf('Wallet'), 'unclaimed');
 });
+
+// Test POST pickup
+const pickup = (id) => fetch(`${url}/items/${id}/pickup`, { method: 'POST' });
+
+test('POST pickup by the owner closes the report and the found item', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	const res = await pickup(idOf('Black Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(statusOf('Black Wallet'), 'resolved');
+	assert.equal(statusOf('Wallet'), 'resolved');
+});
+
+test('POST pickup by staff using the found item id works the same way', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	const res = await pickup(idOf('Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(statusOf('Black Wallet'), 'resolved');
+	assert.equal(statusOf('Wallet'), 'resolved');
+});
+
+test('POST pickup without a claim, or twice, is rejected', async () => {
+	const unclaimedRes = await pickup(idOf('Black Wallet'));
+	assert.equal(unclaimedRes.status, 404);
+	assert.equal(statusOf('Black Wallet'), 'open');
+
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	await pickup(idOf('Black Wallet'));
+	const secondRes = await pickup(idOf('Black Wallet'));
+	assert.equal(secondRes.status, 409);
+});

@@ -178,6 +178,53 @@ router.post('/:id/claim', (req, res) => {
 	}
 });
 
+// POST /api/v1/items/:id/pickup
+// Marks a claimed item as picked up. The id may be the lost report
+// (from the owner's inbox) or the held found item (from the staff page).
+// Both items become "resolved", which closes the report.
+router.post('/:id/pickup', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	try {
+		const claim = db
+			.prepare(
+				`SELECT cl.LostItemId, cl.FoundItemId, lost.Status AS LostStatus
+				 FROM Claim cl
+				 JOIN Item lost ON lost.Id = cl.LostItemId
+				 WHERE cl.LostItemId = ? OR cl.FoundItemId = ?`,
+			)
+			.get(itemId, itemId);
+
+		if (!claim) {
+			return res.status(404).json({ error: 'No claimed item found for this ID' });
+		}
+		if (claim.LostStatus !== 'ready') {
+			return res.status(409).json({ error: 'This item has already been picked up' });
+		}
+
+		// close the report and the found item together
+		try {
+			db.exec('BEGIN');
+			const setStatus = db.prepare("UPDATE Item SET Status = 'resolved' WHERE Id = ?");
+			setStatus.run(claim.LostItemId);
+			setStatus.run(claim.FoundItemId);
+			db.exec('COMMIT');
+		} catch (error) {
+			db.exec('ROLLBACK');
+			throw error;
+		}
+
+		return res.status(200).json({ message: 'Item picked up' });
+	} catch (error) {
+		console.error('Failed to mark item as picked up:', error);
+		return res.status(500).json({ error: 'Failed to mark item as picked up' });
+	}
+});
+
 // POST /api/v1/items/:id/cancel
 // The owner cancels a lost report they no longer need.
 // Only a report that is still searching can be cancelled; once an item
