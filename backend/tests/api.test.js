@@ -194,6 +194,25 @@ test('POST duplicate existing item is rejected', async () => {
     assert.equal(count.count, 1);
 });
 
+// staff can log the found item that matches a lost report: same name,
+// category and building are only a duplicate when the type is the same too
+test('POST found item with the same details as a lost report is allowed', async () => {
+	const res = await fetch(`${url}/items`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			type: 'found',
+			name: 'Black Wallet',
+			categoryId: 'C003',
+			description: 'Black wallet turned in at the front desk',
+			date: '2026-10-03',
+			locationId: '28',
+		}),
+	});
+
+	assert.equal(res.status, 201);
+});
+
 // Test GET matches for one lost report
 test('GET matches returns likely found items with limited details', async () => {
 	const lost = db.prepare("SELECT Id FROM Item WHERE Name = 'Black Wallet'").get();

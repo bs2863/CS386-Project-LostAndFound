@@ -262,10 +262,10 @@ router.post('/:id/cancel', (req, res) => {
 // POST /api/v1/items/check-duplicate
 // Check whether an item already exists
 router.post('/check-duplicate', (req, res) => {
-    const { name, categoryId, locationId } = req.body || {};
+    const { type, name, categoryId, locationId } = req.body || {};
 
     // Check required fields
-    if (!name || !categoryId || !locationId) {
+    if (!type || !name || !categoryId || !locationId) {
         return res.status(400).json({
             error: 'Missing required fields'
         });
@@ -275,11 +275,12 @@ router.post('/check-duplicate', (req, res) => {
         const duplicate = db.prepare(`
             SELECT 1
             FROM Item
-            WHERE Name = ?
+			WHERE Type = ?
+            AND Name = ?
             AND CategoryId = ?
             AND LocationId = ?
             LIMIT 1
-        `).get(name.trim(), categoryId, locationId);
+        `).get(type, name.trim(), categoryId, locationId);
 		// if duplicate exists, return early
         if (duplicate) {
             return res.status(200).json({
@@ -351,11 +352,12 @@ router.post('/', (req, res) => {
 		const duplicate = db.prepare(`
             SELECT 1
             FROM Item
-            WHERE Name = ?
+			WHERE Type = ?
+            AND Name = ?
             AND CategoryId = ?
             AND LocationId = ?
             LIMIT 1
-        `).get(name.trim(), categoryId, locationId);
+        `).get(type, name.trim(), categoryId, locationId);
 			// if duplicate exists, return early
 		if (duplicate) {
 			return res.status(400).json({

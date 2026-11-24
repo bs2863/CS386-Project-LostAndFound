@@ -10,6 +10,8 @@ class LostReportForm extends ItemReportForm {
 			locationId: formData.get('location'),
 			description: formData.get('description')?.trim(),
 			phone: formData.get('phone')?.trim() || null,
+			// the signed-in demo account, so the report shows up in their inbox
+			email: localStorage.getItem('demoEmail'),
 			status: 'open',
 		};
 	}
