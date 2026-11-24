@@ -1,94 +1,86 @@
 <!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Manage Items | NAU Lost & Found</title>
 
-    <title>Manage Items | NAU Lost & Found</title>
+		<!-- CSS -->
+		<link rel="stylesheet" href="/css/style.css" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+	</head>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="/css/style.css" />
-</head>
+	<body>
+		<div id="navbar"></div>
+		<main class="staff-container">
+			<section class="staff-dashboard">
+				<h1>Manage Lost & Found Items</h1>
+				<p>View or manage lost & found items.</p>
+			</section>
 
-<body>
-    <div id="navbar"></div>
-    <main class="staff-container">
+			<section class="staff-filter">
+				<input type="text" id="staffSearch" placeholder="Search items..." />
 
-        <section class="staff-dashboard">
-            <h1>Manage Lost & Found Items</h1>
-            <p>View or manage lost & found items.</p>
-        </section>
+				<select id="staffTypeFilter">
+					<option value="">All Items</option>
+					<option value="lost">Lost</option>
+					<option value="found">Found</option>
+				</select>
+			</section>
 
-        <section class="staff-filter">
-            <input type="text" id="staffSearch" placeholder="Search items...">
+			<section class="staff-edit" id="editSection" hidden>
+				<h2>Edit Items</h2>
 
-            <select id="staffTypeFilter">
-                <option value="">All Items</option>
-                <option value="lost">Lost</option>
-                <option value="found">Found</option>
+				<form id="editForm">
+					<label for="editName">Item Name</label>
+					<input type="text" id="editName" required />
 
-            </select>
-        </section>
+					<label for="editColor">Color</label>
+					<input type="text" id="editColor" />
 
-        <section class="staff-edit" id="editSection" hidden>
-            <h2>Edit Items</h2>
+					<label for="editBrand">Brand</label>
+					<input type="text" id="editBrand" />
 
-            <form id="editForm">
+					<label for="editDescription">Description</label>
+					<textarea id="editDescription"></textarea>
 
-                <label for="editName">Item Name</label>
-                <input type="text" id="editName" required>
+					<label for="editType">Item Type</label>
+					<select id="editType">
+						<option value="lost">Lost</option>
+						<option value="found">Found</option>
+					</select>
 
-                <label for="editColor">Color</label>
-                <input type="text" id="editColor">
+					<label for="editStatus">Status</label>
+					<select id="editStatus"></select>
 
-                <label for="editBrand">Brand</label>
-                <input type="text" id="editBrand">
+					<button type="submit">Save Changes</button>
+					<button type="button" id="cancelEdit">Cancel</button>
+				</form>
+			</section>
 
-                <label for="editDescription">Description</label>
-                <textarea id="editDescription"></textarea>
+			<section class="staff-items">
+				<h2>List of Items</h2>
 
-                <label for="editType">Item Type</label>
-                <select id="editType">
-                    <option value="lost">Lost</option>
-                    <option value="found">Found</option>
-                </select>
+				<table>
+					<thead>
+						<tr>
+							<th>Item</th>
+							<th>Category</th>
+							<th>Location</th>
+							<th>Type</th>
+							<th>Status</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody id="staffItemList"></tbody>
+				</table>
+			</section>
+		</main>
 
-                <label for="editStatus">Status</label>
-                <select id="editStatus"></select>
-
-                <button type="submit">Save Changes</button>
-                <button type="button" id="cancelEdit">Cancel</button>
-
-            </form>
-        </section>
-
-        <section class="staff-items">
-            <h2>List of Items</h2>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Category</th>
-                        <th>Location</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="staffItemList">
-
-                </tbody>
-            </table>
-        </section>
-
-
-    </main>
-
-    <script src="/js/navbar.js"></script>
-    <script src="/js/staffManagement.js"></script>
-
-</body>
-
+		<script src="/js/navbar.js"></script>
+		<script src="/js/staffManagement.js"></script>
+	</body>
 </html>

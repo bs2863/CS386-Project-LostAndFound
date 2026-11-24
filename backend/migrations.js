@@ -348,4 +348,13 @@ module.exports = [
         `INSERT OR IGNORE INTO LostAndFoundDesk (LocationId, Name, Latitude, Longitude) VALUES
                 ('41', 'Honors CLC Lost & Found', 35.18562026547325, -111.65666962682592);
         `,
+  
+  //create the image table 
+  `CREATE TABLE IF NOT EXISTS Image (
+        Id INTEGER PRIMARY KEY,
+        ItemId INTEGER,
+        Base64Data TEXT NOT NULL,
+        FOREIGN KEY (ItemId) REFERENCES Item(Id)
+        )`,
+
 ];
