@@ -98,8 +98,8 @@ app.get('/api/v1/desks', (req, res) => {
  */
 app.get('/api/v1/zones', (req, res) => {
 	try {
-		const zones = query(`
-            SELECT Id AS id, Name AS name
+		let zones = query(`
+            SELECT Id AS id, Name AS name, Boundary AS boundary
             FROM Zone
             ORDER BY CASE Id
                 WHEN 'NORTH' THEN 1
@@ -108,6 +108,13 @@ app.get('/api/v1/zones', (req, res) => {
                 ELSE 4
             END;
         `);
+
+		// FIXME: this isn't a good way to do this,
+		// but it works and it's only running three times, so...
+		zones = zones.map(result => {
+			result.boundary = JSON.parse(result.boundary);
+			return result;
+		});
 
 		return res.status(200).json(zones);
 	} catch (error) {

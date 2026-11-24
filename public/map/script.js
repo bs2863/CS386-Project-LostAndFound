@@ -82,4 +82,42 @@ map.on('load', async () => {
 		marker.setPopup(new maplibregl.Popup().setText(element.name));
 		marker.addTo(map);
 	});
+
+	const zoneResponse = await (await fetch("/api/v1/zones")).json();
+
+	const zoneData = { "type": "FeatureCollection", "features": zoneResponse.map(zone => zone.boundary) };
+
+	map.addSource("zones", {
+		type: "geojson",
+		data: zoneData
+	});
+
+	map.addLayer({
+		id: "zone-fill",
+		type: "fill",
+		source: "zones",
+		paint: {
+			"fill-color": "#000",
+			"fill-opacity": 0.1
+		}
+	});
+
+	map.addLayer({
+		id: "zone-outline",
+		type: "line",
+		source: "zones",
+		paint: {
+			"line-color": "#000",
+			"line-width": 2
+		}
+	});
+
+	map.addLayer({
+		id: "zone-name",
+		type: "symbol",
+		source: "zones",
+		layout: {
+			"text-field": ['get', 'name'],
+		}
+	});
 });
