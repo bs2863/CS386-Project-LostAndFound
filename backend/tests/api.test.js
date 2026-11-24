@@ -282,3 +282,30 @@ test('POST claim twice is rejected the second time', async () => {
 	assert.equal(res.status, 409);
 	assert.equal(db.prepare('SELECT COUNT(*) AS count FROM Claim').get().count, 1);
 });
+
+// Test POST cancel
+const cancel = (id) => fetch(`${url}/items/${id}/cancel`, { method: 'POST' });
+
+test('POST cancel closes an open report', async () => {
+	const res = await cancel(idOf('Black Wallet'));
+
+	assert.equal(res.status, 200);
+	assert.equal(statusOf('Black Wallet'), 'cancelled');
+});
+
+test('POST cancel on a claimed report is rejected', async () => {
+	await claim(idOf('Black Wallet'), idOf('Wallet'));
+	const res = await cancel(idOf('Black Wallet'));
+
+	assert.equal(res.status, 409);
+	assert.equal(statusOf('Black Wallet'), 'ready');
+});
+
+test('POST cancel on a found item or unknown id is rejected', async () => {
+	const foundRes = await cancel(idOf('Wallet'));
+	const missingRes = await cancel(999999);
+
+	assert.equal(foundRes.status, 404);
+	assert.equal(missingRes.status, 404);
+	assert.equal(statusOf('Wallet'), 'unclaimed');
+});

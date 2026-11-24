@@ -178,6 +178,36 @@ router.post('/:id/claim', (req, res) => {
 	}
 });
 
+// POST /api/v1/items/:id/cancel
+// The owner cancels a lost report they no longer need.
+// Only a report that is still searching can be cancelled; once an item
+// is held for it (status "ready"), it is closed by picking it up instead.
+router.post('/:id/cancel', (req, res) => {
+	const itemId = Number(req.params.id);
+
+	if (!Number.isInteger(itemId)) {
+		return res.status(400).json({ error: 'Invalid item ID' });
+	}
+
+	try {
+		const report = db.prepare('SELECT Type, Status FROM Item WHERE Id = ?').get(itemId);
+
+		if (!report || report.Type !== 'lost') {
+			return res.status(404).json({ error: 'Lost report not found' });
+		}
+		if (report.Status !== 'open') {
+			return res.status(409).json({ error: 'Only an open report can be cancelled' });
+		}
+
+		db.prepare("UPDATE Item SET Status = 'cancelled' WHERE Id = ?").run(itemId);
+
+		return res.status(200).json({ message: 'Report cancelled' });
+	} catch (error) {
+		console.error('Failed to cancel report:', error);
+		return res.status(500).json({ error: 'Failed to cancel report' });
+	}
+});
+
 // POST /api/v1/items/check-duplicate
 // Check whether an item already exists
 router.post('/check-duplicate', (req, res) => {
