@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				throw new Error(error.error || 'Failed to update item');
 			}
 
-			alert('Item successfully updated!');
+			await Popup.show('Item Updated', 'Item successfully updated!', 'success');
 
 			editSection.hidden = true;
 			editForm.reset();
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			await fetchItems();
 		} catch (error) {
 			console.error('Failed to update item: ', error);
-			alert(error.message);
+			await Popup.show('Error', error.message, 'error');
 		}
 	});
 
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			statusColumn.textContent =
 				item.status.charAt(0).toUpperCase() + item.status.slice(1);
 
-            // a held item shows who claimed it, so staff know whose ID to check
+			// a held item shows who claimed it, so staff know whose ID to check
 			if (item.status === 'held' && item.heldForEmail) {
 				const heldFor = document.createElement('small');
 				heldFor.textContent = `for ${item.heldForEmail}`;
@@ -139,18 +139,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 			viewButton.setAttribute('aria-label', 'View');
 			viewButton.className = 'view-btn';
 			viewButton.addEventListener('click', () => {
-				alert(
-					`Item Information
-                    Name: ${item.name}
-                    Type: ${item.type}
-                    Category: ${item.categoryName}
-                    Color: ${item.color || 'Not provided'}
-                    Brand: ${item.brand || 'Not provided'}
-                    Location Lost At: ${item.locationName}
-                    Description: ${item.description}
-                    Date: ${item.date}
-                    Status: ${item.status}
-                    Item Identification Number: ${item.id}`,
+				Popup.show(
+					'Item Information',
+					`Name: ${item.name}
+			Type: ${item.type}
+			Category: ${item.categoryName}
+			Color: ${item.color || 'Not provided'}
+			Brand: ${item.brand || 'Not provided'}
+			Location: ${item.locationName}
+			Description: ${item.description}
+			Date: ${item.date}
+			Status: ${item.status}
+			Item ID: ${item.id}`,
+					'info',
 				);
 			});
 
@@ -183,8 +184,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 			removeButton.className = 'remove-btn';
 
 			removeButton.addEventListener('click', async () => {
-				const confirmMessage = confirm(
+				const confirmMessage = await Popup.show(
+					'Remove Item?',
 					`Are you sure you want to remove "${item.name}"?`,
+					'error',
+					true,
 				);
 
 				// If the user presses cancel, simply exit
@@ -201,20 +205,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 						throw new Error(error.error || 'Failed to delete item');
 					}
 
-					alert('Item removed successfully!');
+					await Popup.show(
+						'Item Removed',
+						'Item removed successfully!',
+						'success',
+					);
 
 					// Refresh the table
 					await fetchItems();
 				} catch (error) {
 					console.error('Failed to remove item: ', error);
-					alert(error.message);
+					await Popup.show('Error', error.message, 'error');
 				}
 			});
 
 			// add the buttons to actions column
 			actionsColumn.append(viewButton, editButton, removeButton);
 
-            // a held item can be marked as picked up once staff check the owner's ID
+			// a held item can be marked as picked up once staff check the owner's ID
 			if (item.status === 'held') {
 				const pickupButton = document.createElement('button');
 				pickupButton.textContent = 'Mark Picked Up';
@@ -222,8 +230,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				pickupButton.addEventListener('click', async () => {
 					const owner = item.heldForEmail || 'the owner';
-					const confirmPickup = confirm(
+					const confirmPickup = await Popup.show(
+						'Confirm Pickup',
 						`Check the ID of ${owner}, then confirm that "${item.name}" was picked up.`,
+						'info',
+						true,
 					);
 
 					// If the user presses cancel, simply exit
@@ -236,16 +247,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 						if (!res.ok) {
 							const error = await res.json();
-							throw new Error(error.error || 'Failed to mark item as picked up');
+							throw new Error(
+								error.error || 'Failed to mark item as picked up',
+							);
 						}
 
-						alert('Item marked as picked up!');
+						await Popup.show(
+							'Pickup Completed',
+							'Item marked as picked up!',
+							'success',
+						);
 
 						// Refresh the table
 						await fetchItems();
 					} catch (error) {
 						console.error('Failed to mark item as picked up: ', error);
-						alert(error.message);
+						await Popup.show('Error', error.message, 'error');
 					}
 				});
 
