@@ -40,25 +40,24 @@ test('GET items', async () => {
 test('POST valid item', async () => {
 	// arrange
 	const fake = mock.method(db, 'prepare', (sql) => ({
-    get: () => {
-        // Category and location lookups should find a row
-        if (sql.includes('FROM Category') ||
-            sql.includes('FROM Location')) {
-            return {};
-        }
+		get: () => {
+			// Category and location lookups should find a row
+			if (sql.includes('FROM Category') || sql.includes('FROM Location')) {
+				return {};
+			}
 
-        // Duplicate check should find NO duplicate
-        if (sql.includes('FROM Item')) {
-            return undefined;
-        }
+			// Duplicate check should find NO duplicate
+			if (sql.includes('FROM Item')) {
+				return undefined;
+			}
 
-        return undefined;
-    },
+			return undefined;
+		},
 
-    run: () => ({ lastInsertRowid: 1 }),
-}));
+		run: () => ({ lastInsertRowid: 1 }),
+	}));
 	const server = app.listen(0);
-	
+
 	try {
 		const url = `http://127.0.0.1:${server.address().port}`;
 		const item = {
@@ -109,8 +108,23 @@ test('POST invalid item', async () => {
 // Test POST duplicate item
 test('POST duplicate item is rejected', async () => {
 	// arrange
+	const fake = mock.method(db, 'prepare', (sql) => ({
+		get: () => {
+			if (sql.includes('FROM Category') || sql.includes('FROM Location')) {
+				return {};
+			}
+
+			if (sql.includes('FROM Item')) {
+				// there is a duplicated item
+				return { id: 1 };
+			}
+			// say there is no duplicated item in db
+			return undefined;
+		},
+	}));
+
 	const server = app.listen(0);
-	//act 
+	//act
 	try {
 		const url = `http://127.0.0.1:${server.address().port}`;
 		const res = await fetch(`${url}/api/v1/items`, {
@@ -129,6 +143,7 @@ test('POST duplicate item is rejected', async () => {
 		// assert the response for duplicate item
 		assert.equal(res.status, 400);
 	} finally {
+		fake.mock.restore();
 		await new Promise((resolve) => server.close(resolve));
 	}
 });
